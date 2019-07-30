@@ -2,7 +2,7 @@ from ROOT import *
 import map
 import newmap
 
-def create_eventdisplay(PrimaryParticleName, VectorSignalsR, VectorSignalsL, filename):
+def create_eventdisplay_scin(PrimaryParticleName, VectorSignalsR, VectorSignalsL, histoname):
 	"""Function to perform ROOT event display form calo"""
 	NbOfBarrel=40
 	NbOfEndcap=35
@@ -12,7 +12,7 @@ def create_eventdisplay(PrimaryParticleName, VectorSignalsR, VectorSignalsL, fil
 	deltatheta = 45./(NbOfBarrel)
 
 	#Set ROOT histograms (x=theta, y=phi)
-	TH2Signals = TH2F("ScinSignals"+filename, PrimaryParticleName, NbOfBarrel*2, -1*(deltatheta*NbOfBarrel+deltatheta/2), deltatheta*NbOfBarrel+deltatheta/2, NZrot, 0., 360.)
+	TH2Signals = TH2F("ScinSignals_"+histoname, PrimaryParticleName, NbOfBarrel*2, -1*(deltatheta*NbOfBarrel+deltatheta/2), deltatheta*NbOfBarrel+deltatheta/2, NZrot, 0., 360.)
 	
 	#Fill histograms in for loop
 	for towerindex in range(TotTower*NZrot):
@@ -22,7 +22,6 @@ def create_eventdisplay(PrimaryParticleName, VectorSignalsR, VectorSignalsL, fil
 		TH2Signals.Fill(theta, phi, VectorSignalsL[towerindex])
 
 	#Draw + DrawOptions histograms	
-
 	Style = gStyle
 	Style.SetPadRightMargin(0.16)
 	Style.SetPalette(1) #Root palette style
@@ -42,6 +41,4 @@ def create_eventdisplay(PrimaryParticleName, VectorSignalsR, VectorSignalsL, fil
 	#ZAxis.SetTitle("Energy (MeV)")
 	#ZAxis.SetTitleOffset(1.4)
 	TH2Signals.Draw("COLZ 0 FB")
-	TH2Signals.Write()
-	gPad.SaveAs("ImageScintillation"+filename+".pdf")
-	
+	TH2Signals.Write()	

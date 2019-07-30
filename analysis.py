@@ -15,16 +15,16 @@ if machine == "linux":
 		path = str("/home/lorenzo/cernbox/work/Git-to-Mac/AnalysisIDEACalorimeter/")
 		datapath = str("/home/lorenzo/cernbox/work/Git-to-Mac/IDEA_Calorimeter_Union_data/BarrelR/")
 if machine == "office":
-		path = str("/media/geant4-mc-infn/DataStorage/lorenzo/cernbox/work/Git-to-Mac/AnalysisFullCalorimeter/")
+		datapath = str("/home/software/Calo/results/tower_calibration/")
 
-def eventdisplay():
-	inputfile = raw_input("Insert root file: ")
+def eventdisplay(inputfile, outputfile, histoname):
+	#inputfile = raw_input("Insert root file: ")
 	inputfile = TFile(datapath+inputfile)
 	tree = TTree()
 	inputfile.GetObject("B4", tree)
 
-	outputfile = raw_input("Insert root output file: ")
-	displayfile = TFile(path+outputfile+".root","RECREATE")
+	#outputfile = raw_input("Insert root output file: ")
+	displayfile = TFile(outputfile+".root","APPEND")
 
 	#loop over events
 	for Event in range(int(tree.GetEntries())):
@@ -46,18 +46,11 @@ def eventdisplay():
 		VectorR = tree.VectorR
 		VectorL = tree.VectorL		
 		
-		for towerindex, signal in enumerate(BarrelR_VectorSignals):
-			theta, phi = map.maptowerBR(towerindex)
-			if signal > 0.:
-				print "theta "+str(theta)+" phi "+str(phi)+ " signal "+str(signal)
-
-		ROOTHistograms.create_eventdisplay(PrimaryParticleName, BarrelR_VectorSignals, BarrelL_VectorSignalsCher, outputfile) 
-
-#eventdisplay()
+		ROOTHistograms.create_eventdisplay_scin(PrimaryParticleName, BarrelR_VectorSignals, BarrelL_VectorSignals, histoname) 
 
 def towercalibration():
-	outputfile = "barrel"
-	displayfile = TFile(path+outputfile+".root","RECREATE")
+	outputfile = "TowersRight"
+	displayfile = TFile(outputfile+".root","RECREATE")
 
 	MeanScin = array('d')
 	MeanCher = array('d')
@@ -69,7 +62,7 @@ def towercalibration():
 	errorsscin = array('d')
 	errorscher = array('d')
 
-	inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime)
+	inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
 	
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
@@ -77,9 +70,9 @@ def towercalibration():
 		tree = TTree()
 		inputfile.GetObject("B4", tree)	
 
-		ScinHist = TH1F(str(inputfile)+"scin", str(counter+1)+"_scin", 100, 0., 100.)
-		CherHist = TH1F(str(inputfile)+"cher", str(counter+1)+"_cher", 100, 0., 100.)	
-		EnergyTowerHist = TH1F(str(inputfile)+"Maxscin",str(counter+1)+"_Maxscin", 200, 0., 100000.)
+		ScinHist = TH1F("scin_", str(counter+1)+"_scin", 100, 0., 10.)
+		CherHist = TH1F("cher_", str(counter+1)+"_cher", 100, 0., 50.)	
+		EnergyTowerHist = TH1F("Energy_",str(counter+1)+"_Energy", 200, 0., 100000.)
 		#loop over events
 		for Event in range(int(tree.GetEntries())):	
 
@@ -101,7 +94,7 @@ def towercalibration():
 			VectorL = tree.VectorL
 
 			signalscin = max(BarrelR_VectorSignals)
-			signalcher = max(BarrelR_VectorSignalsCher)*0.296
+			signalcher = max(BarrelR_VectorSignalsCher)
 			energytower = max(VectorR)
 			
 			ScinHist.Fill(energytower/signalscin)	
@@ -109,8 +102,9 @@ def towercalibration():
 			EnergyTowerHist.Fill(energytower)
 
 			if Event < 1:
+				print "Max found at: "+str(list(BarrelR_VectorSignals).index(signalscin))+str(list(BarrelR_VectorSignalsCher).index(signalcher))+str(list(VectorR).index(energytower))+" for file "+str(counter+1) #to check tower mostly hitten is the correct one
 				displayfile.cd()
-				ROOTHistograms.create_eventdisplay(PrimaryParticleName, BarrelR_VectorSignals, BarrelL_VectorSignals, str(counter)) 
+				ROOTHistograms.create_eventdisplay_scin(PrimaryParticleName, BarrelR_VectorSignals, BarrelL_VectorSignals, str(counter)) 
 		
 		displayfile.cd()
 		ScinHist.Write()
@@ -122,15 +116,15 @@ def towercalibration():
 		RMSScin.append(ScinHist.GetRMS())
 		RMSCher.append(CherHist.GetRMS())
 		EnergyTower.append(EnergyTowerHist.GetMean())
-		print ScinHist.GetMean(), EnergyTowerHist.GetMean()
+		#print ScinHist.GetMean(), CherHist.GetMean(), EnergyTowerHist.GetMean()
 		#print ScinHist.GetRMS(), CherHist.GetRMS()
 		Tower.append(counter+1)
 		Zeros.append(0.)
 		errorsscin.append(ScinHist.GetRMS()/(3000**0.5))
 		errorscher.append(CherHist.GetRMS()/(3000**0.5))
 
-	print np.mean(MeanScin), max(MeanScin), min(MeanScin)
-	print np.mean(MeanCher), max(MeanCher), min(MeanCher)
+	#print np.mean(MeanScin), max(MeanScin), min(MeanScin)
+	#print np.mean(MeanCher), max(MeanCher), min(MeanCher)
 	
 	n = len(MeanCher)
 	RMSGraphScin = TGraph(n, Tower, RMSScin)
@@ -149,6 +143,5 @@ def towercalibration():
 	MeanGraphScin.Write()
 	RMSGraphCher.Write()
 	RMSGraphScin.Write()
-	
-#towercalibration()
-eventdisplay()
+
+towercalibration()

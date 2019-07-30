@@ -17,7 +17,7 @@ def getsignals():
 	outputfile = raw_input("Insert root output file: ")
 	file = TFile(outputfile,"RECREATE")
 
-	SignalScin = TH1F("SignalScin", "SignalScin", 100, 0., 5000.)
+	SignalScin = TH1F("SignalScin", "SignalScin", 100, 0., 30000.)
 	SignalCher = TH1F("SignalCher", "SignalCher", 100, 0., 50000.)
 	Energydep = TH1F("EnergyDep", "Energydep", 10000, 0., 100000.)	
 	#loop over events
@@ -43,6 +43,7 @@ def getsignals():
 		S = sum(BarrelR_VectorSignals)+sum(BarrelL_VectorSignals)
 		C = sum(BarrelR_VectorSignalsCher)+sum(BarrelL_VectorSignalsCher)
 		E = sum(VectorR)+sum(VectorL)
+		print S
 		SignalScin.Fill(S)
 		SignalCher.Fill(C)
 		Energydep.Fill(E)
