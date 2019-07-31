@@ -24,7 +24,7 @@ def eventdisplay(inputfile, outputfile, histoname):
 	inputfile.GetObject("B4", tree)
 
 	#outputfile = raw_input("Insert root output file: ")
-	displayfile = TFile(outputfile+".root","APPEND")
+	displayfile = TFile(outputfile+".root","RECREATE")
 
 	#loop over events
 	for Event in range(int(tree.GetEntries())):
