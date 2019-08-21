@@ -1,6 +1,6 @@
 import map
 import ROOTHistograms
-from ROOT import TTree, TFile, TH1F, TGraph, TGraphErrors, gStyle
+from ROOT import TTree, TFile, TH1F, TGraph, TGraphErrors, gStyle, TLine, TF1
 import glob
 from array import array
 import os
@@ -194,14 +194,18 @@ def towercalibration():
 	MeanGraphCher = TGraphErrors(n, Tower, MeanCher, Zeros, errorscher)
 	MeanGraphCher.SetName("Calibration_Cher")
 	x = array('d', (0., 90., 90., 0.))
-	y = array('d', (np.mean(MeanScin)-0.04*np.mean(MeanScin), np.mean(MeanScin)-0.04*np.mean(MeanScin), np.mean(MeanScin)+0.04*np.mean(MeanScin), np.mean(MeanScin)+0.04*np.mean(MeanScin)))
+	y = array('d', (np.mean(MeanScin)-0.01*np.mean(MeanScin), np.mean(MeanScin)-0.01*np.mean(MeanScin), np.mean(MeanScin)+0.01*np.mean(MeanScin), np.mean(MeanScin)+0.01*np.mean(MeanScin)))
 	Fillgraph = TGraph(4, x, y )
 	Fillgraph.SetName("Calibration_banscin")
+	linefillgraph = TF1("CalibrationMeanScin", str(np.mean(MeanScin)), 0., 90.)
+	linefillgraph.Write()
 	Fillgraph.Write()
 	x2 = array('d', (0., 90., 90., 0.))
-	y2 = array('d', (np.mean(MeanCher)-0.04*np.mean(MeanCher), np.mean(MeanCher)-0.04*np.mean(MeanCher), np.mean(MeanCher)+0.04*np.mean(MeanCher), np.mean(MeanCher)+0.04*np.mean(MeanCher)))
+	y2 = array('d', (np.mean(MeanCher)-0.01*np.mean(MeanCher), np.mean(MeanCher)-0.01*np.mean(MeanCher), np.mean(MeanCher)+0.01*np.mean(MeanCher), np.mean(MeanCher)+0.01*np.mean(MeanCher)))
 	Fillgraph2 = TGraph(4, x2, y2 )
 	Fillgraph2.SetName("Calibration_bancher")
+	linefillgraph2 = TF1("CalibrationMeanCher", str(np.mean(MeanCher)), 0., 90.)
+	linefillgraph2.Write()
 	Fillgraph2.Write()
 	MeanGraphCher.Write()
 	MeanGraphScin.Write()
@@ -217,14 +221,18 @@ def towercalibration():
 	ResponseMeanGraphCher = TGraphErrors(n, Tower, ResponseMeanCher, Zeros, Responseerrorscher)
 	ResponseMeanGraphCher.SetName("ResponseMeanGraphCher")
 	x = array('d', (0., 90., 90., 0.))
-	y = array('d', (np.mean(ResponseMeanScin)-0.04*np.mean(ResponseMeanScin), np.mean(ResponseMeanScin)-0.04*np.mean(ResponseMeanScin), np.mean(ResponseMeanScin)+0.04*np.mean(ResponseMeanScin), np.mean(ResponseMeanScin)+0.04*np.mean(ResponseMeanScin)))
+	y = array('d', (np.mean(ResponseMeanScin)-0.01*np.mean(ResponseMeanScin), np.mean(ResponseMeanScin)-0.01*np.mean(ResponseMeanScin), np.mean(ResponseMeanScin)+0.01*np.mean(ResponseMeanScin), np.mean(ResponseMeanScin)+0.01*np.mean(ResponseMeanScin)))
 	Fillgraph = TGraph(4, x, y )
 	Fillgraph.SetName("ResponseBan_scin")
+	linefillgraph = TF1("ResponseMeanScin", str(np.mean(ResponseMeanScin)), 0., 90.)
+	linefillgraph.Write()
 	Fillgraph.Write()
 	x2 = array('d', (0., 90., 90., 0.))
-	y2 = array('d', (np.mean(ResponseMeanCher)-0.04*np.mean(ResponseMeanCher), np.mean(ResponseMeanCher)-0.04*np.mean(ResponseMeanCher), np.mean(ResponseMeanCher)+0.04*np.mean(ResponseMeanCher), np.mean(ResponseMeanCher)+0.04*np.mean(ResponseMeanCher)))
+	y2 = array('d', (np.mean(ResponseMeanCher)-0.01*np.mean(ResponseMeanCher), np.mean(ResponseMeanCher)-0.01*np.mean(ResponseMeanCher), np.mean(ResponseMeanCher)+0.01*np.mean(ResponseMeanCher), np.mean(ResponseMeanCher)+0.01*np.mean(ResponseMeanCher)))
 	Fillgraph2 = TGraph(4, x2, y2 )
 	Fillgraph2.SetName("ResponseBan_cher")
+	linefillgraph2 = TF1("ResponseMeanCher", str(np.mean(ResponseMeanCher)), 0., 90.)
+	linefillgraph2.Write()
 	Fillgraph2.Write()
 	ResponseMeanGraphCher.Write()
 	ResponseMeanGraphScin.Write()

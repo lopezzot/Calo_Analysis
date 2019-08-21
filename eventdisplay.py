@@ -2,7 +2,7 @@ import os
 import numpy as np
 #import matplotlib.pyplot as plt
 import time
-from ROOT import TH2F, TFile, TH1F
+from ROOT import TH2F, TFile, TH1F, TGraph2D, TLine
 import circle
 
 def cart2sph(x,y,z):
@@ -10,7 +10,8 @@ def cart2sph(x,y,z):
 	phi = np.arctan2(z,np.sqrt(x**2 + y**2))
 	r = np.sqrt(x**2 + y**2 + z**2)
 	return theta, phi, r
-energies = [30,40,50,60,70,80,90,100,110,120,130,140,150]
+#energies = [30,40,50,60,70,80,90,100,110,120,130,140,150]
+energies = [40]
 for e in energies:
 	outputfile = TFile("Electron_"+str(e)+".root", "RECREATE")	
 
@@ -69,6 +70,20 @@ for e in energies:
 		ScinPlot = TH2F("Scin_"+str(i), "Scin_"+str(i), int(100), float(np.mean(theta_S)-0.05), float(np.mean(theta_S)+0.05), int(100), float(np.mean(phi_S)-0.05),float(np.mean(phi_S)+0.05))
 		CherPlot = TH2F("Cher_"+str(i), "Cher_"+str(i), int(100),  float(np.mean(theta_S)-0.05), float(np.mean(theta_S)+0.05), int(100), float(np.mean(phi_S)-0.05),float(np.mean(phi_S)+0.05))
 		
+		n = len(theta_S)
+		array_theta_S = np.array(theta_S, 'd')
+		array_phi_S = np.array(phi_S, 'd')
+		array_E_s = np.array(E_s, 'd')
+		ScinGraph = TGraph2D(n, array_theta_S, array_phi_S, array_E_s)
+		ScinGraph.SetName("ScinGraph_"+str(i))
+
+		n = len(theta_C)
+		array_theta_C = np.array(theta_C, 'd')
+		array_phi_C = np.array(phi_C, 'd')
+		array_E_c = np.array(E_c, 'd')
+		CherGraph = TGraph2D(n, array_theta_C, array_phi_C, array_E_c)
+		CherGraph.SetName("CherGraph_"+str(i))
+
 		MeanTheta = 0.
 		MeanPhi = 0.
 		sumtheta = 0.
@@ -128,8 +143,12 @@ for e in energies:
 		if i<10:
 			ScinPlot.Write()
 			CherPlot.Write()
+			ScinGraph.Write()
+			CherGraph.Write()
 		del ScinPlot
 		del CherPlot	
+		del ScinGraph
+		del CherGraph
 
 		#plt.plot(theta_S, phi_S,'.b',ms=1)
 		#plt.show()
