@@ -15,7 +15,7 @@ if machine == "linux":
 		path = str("/home/lorenzo/cernbox/work/Git-to-Mac/AnalysisIDEACalorimeter/")
 		datapath = str("/home/lorenzo/cernbox/work/Git-to-Mac/IDEA_Calorimeter_Union_data/BarrelR/")
 if machine == "office":
-		datapath = str("/home/software/Calo/results/SliceScan/")
+		datapath = str("/home/software/Calo/results/NewTowerScan3/")
 
 def eventdisplay(inputfile, outputfile, histoname):
 	#inputfile = raw_input("Insert root file: ")
@@ -116,6 +116,7 @@ def towercalibration():
 			signalscin = max(BarrelR_VectorSignals)
 			signalcher = max(BarrelR_VectorSignalsCher)
 			energytower = max(VectorR)/1000
+			totalenergy = (sum(VectorR)+sum(VectorL))/1000
 			
 			ScinHist.Fill(signalscin/energytower)	
 			CherHist.Fill(signalcher/energytower)	
@@ -123,9 +124,8 @@ def towercalibration():
 
 			totalsignalscin = sum(BarrelR_VectorSignals)+sum(BarrelL_VectorSignals)
 			totalsignalcher = sum(BarrelR_VectorSignalsCher)+sum(BarrelL_VectorSignalsCher)
-			totalenergy = (sum(VectorR)+sum(VectorL))/1000
+			
 			EnergyHist.Fill(totalenergy)
-
 
 			ResponseScinHist.Fill(totalsignalscin/totalenergy)
 			ResponseCherHist.Fill(totalsignalcher/totalenergy)
@@ -134,7 +134,8 @@ def towercalibration():
 			energytot.append(totalenergy)
 			scinsignaltot.append(totalsignalscin)
 			chersignaltot.append(totalsignalcher)
-
+			if list(BarrelR_VectorSignals).index(max(BarrelR_VectorSignals)) != counter+1:
+					print "WRONG!!!!!!!!!!!"	
 			if Event < 1:
 				print "Max found at: "+str(list(BarrelR_VectorSignals).index(signalscin))+str(list(BarrelR_VectorSignalsCher).index(signalcher))+str(list(VectorR).index(energytower*1000))+" for file "+str(counter+1) #to check tower mostly hitten is the correct one
 				displayfile.cd()
@@ -149,8 +150,10 @@ def towercalibration():
 		ScinHist.Write()
 		CherHist.Write()
 		EnergyTowerHist.Write()
-		MeanScin.append(ScinHist.GetFunction("gaus").GetParameter(1))
-		MeanCher.append(CherHist.GetFunction("gaus").GetParameter(1))
+		#MeanScin.append(ScinHist.GetFunction("gaus").GetParameter(1))
+		MeanScin.append(ScinHist.GetMean())
+		#MeanCher.append(CherHist.GetFunction("gaus").GetParameter(1))
+		MeanCher.append(CherHist.GetMean())
 		RMSScin.append(ScinHist.GetRMS())
 		RMSCher.append(CherHist.GetRMS())
 		EnergyTower.append(EnergyTowerHist.GetMean())
@@ -168,8 +171,10 @@ def towercalibration():
 		ResponseCherHist.Fit("gaus")
 		ResponseScinHist.Write()
 		ResponseCherHist.Write()
-		ResponseMeanScin.append(ResponseScinHist.GetFunction("gaus").GetParameter(1))
-		ResponseMeanCher.append(ResponseCherHist.GetFunction("gaus").GetParameter(1))
+		#ResponseMeanScin.append(ResponseScinHist.GetFunction("gaus").GetParameter(1))
+		ResponseMeanScin.append(ResponseScinHist.GetMean())
+		#ResponseMeanCher.append(ResponseCherHist.GetFunction("gaus").GetParameter(1))
+		ResponseMeanCher.append(ResponseCherHist.GetMean())
 		ResponseRMSScin.append(ResponseScinHist.GetRMS())
 		ResponseRMSCher.append(ResponseCherHist.GetRMS())
 		Responseerrorsscin.append(ResponseScinHist.GetRMS()/(3000**0.5))
