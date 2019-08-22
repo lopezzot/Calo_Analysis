@@ -18,12 +18,13 @@ def maptower(index, side):
 	phi_unit = 360./NZrot
 	
 	phi = (sliceindex)*phi_unit
-	
+
+	'''
 	if phi<180.:
 		phi = 180+phi
 	elif phi>180.:
 		phi = phi-180
-    
+    '''
 	if side == "right":
 		return theta, phi
 	if side == "left":

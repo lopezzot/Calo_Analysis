@@ -15,7 +15,7 @@ if machine == "linux":
 		path = str("/home/lorenzo/cernbox/work/Git-to-Mac/AnalysisIDEACalorimeter/")
 		datapath = str("/home/lorenzo/cernbox/work/Git-to-Mac/IDEA_Calorimeter_Union_data/BarrelR/")
 if machine == "office":
-		datapath = str("/home/software/Calo/results/NewTowerScan2/")
+		datapath = str("/home/software/Calo/results/SliceScan/")
 
 def eventdisplay(inputfile, outputfile, histoname):
 	#inputfile = raw_input("Insert root file: ")
@@ -91,7 +91,7 @@ def towercalibration():
 		ResponseScinHist = TH1F("responsescin_", str(counter+1)+"_scin", 1000, 0., 1000.)
 		ResponseCherHist = TH1F("responsecher_", str(counter+1)+"_cher", 600, 0., 600.)
 
-		Signalscinhist = TH1F("scintot_", str(counter+1)+"_scin", 30000, 0., 30000)
+		Signalscinhist = TH1F("scintot_", str(counter+1)+"_scin", 3000, 0., 30000)
 
 		#loop over events
 		for Event in range(int(tree.GetEntries())):	
