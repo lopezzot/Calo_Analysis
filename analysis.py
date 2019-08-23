@@ -13,7 +13,7 @@ if machine == "mac":
 		datapath = str("/Users/lorenzo/cernbox/work/Git-to-Mac/IDEA_Calorimeter_Union_data/")
 if machine == "linux":
 		path = str("/home/lorenzo/cernbox/work/Git-to-Mac/AnalysisIDEACalorimeter/")
-		datapath = str("/home/lorenzo/cernbox/work/Git-to-Mac/IDEA_Calorimeter_Union_data/BarrelR/")
+		datapath = str("/home/lorenzo/Desktop/Calo/results/barrelscan/")
 if machine == "office":
 		datapath = str("/home/software/Calo/results/NewTowerScan3/")
 
