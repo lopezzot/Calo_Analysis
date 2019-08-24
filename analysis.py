@@ -15,7 +15,7 @@ if machine == "linux":
 		path = str("/home/lorenzo/cernbox/work/Git-to-Mac/AnalysisIDEACalorimeter/")
 		datapath = str("/home/lorenzo/Desktop/Calo/results/barrelscan/")
 if machine == "office":
-		datapath = str("/home/software/Calo/results/NewTowerScan3/")
+		datapath = str("/home/software/Calo/results/NewTowerScan4/")
 
 def eventdisplay(inputfile, outputfile, histoname):
 	#inputfile = raw_input("Insert root file: ")
@@ -76,8 +76,8 @@ def towercalibration():
 	ScinSignalTot = array('d')
 	
 
-	inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
-	#inputfiles = ["/home/software/Calo/Calibrations/Calib_"+str(i)+".root" for i in range(1,76)]
+	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
+	inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
 		print "Analyzing: "+str(inputfile)+" \n"
