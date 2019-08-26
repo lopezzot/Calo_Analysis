@@ -10,7 +10,7 @@ def calibscin(Barrel_VectorSignals):
 		print "wrong calibration length "+str(len(Barrel_VectorSignals))+" "+str(len(scincalibrations))
 		quit()
 
-	calib_Barrel_VectorSignals = [0]+[Barrel_VectorSignals[counter]*(1/entry) for counter, entry in enumerate(scincalibrations[1:])]
+	calib_Barrel_VectorSignals = [0]+[Barrel_VectorSignals[counter]*(1/(0.988*entry)) for counter, entry in enumerate(scincalibrations[1:])]
 	return calib_Barrel_VectorSignals
 
 def calibcher(Barrel_VectorSignalsCher):
@@ -23,5 +23,5 @@ def calibcher(Barrel_VectorSignalsCher):
 		print "wrong calibration length \n"
 		quit()
 
-	calib_Barrel_VectorSignalsCher = [0]+[Barrel_VectorSignalsCher[counter]*(1/entry) for counter, entry in enumerate(chercalibrations[1:])]
+	calib_Barrel_VectorSignalsCher = [0]+[Barrel_VectorSignalsCher[counter]*(1/(0.975*entry)) for counter, entry in enumerate(chercalibrations[1:])]
 	return calib_Barrel_VectorSignalsCher
