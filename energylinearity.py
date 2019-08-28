@@ -14,30 +14,24 @@ if machine == "mac":
 		datapath = str("/Users/lorenzo/cernbox/work/Git-to-Mac/IDEA_Calorimeter_Union_data/")
 if machine == "linux":
 		path = str("/home/lorenzo/cernbox/work/Git-to-Mac/AnalysisIDEACalorimeter/")
-		datapath = str("/home/lorenzo/Desktop/Calo/results/newenergyscan3/")
+		datapath = str("/home/lorenzo/Desktop/Calo/results/energylinearity/")
 if machine == "office":
-		datapath = str("/home/software/Calo/results/newenergyscan3/")
+		datapath = str("/home/software/Calo/results/Energylinearity/")
 
-def recenergy():
-	outputfile = "EMEnergyRes"
+def energylinearity():
+	outputfile = "EMLinearityEnergyRes"
 	displayfile = TFile(outputfile+".root","RECREATE")
 
 	MeanEnergyScin = array('d')
 	MeanEnergyCher = array('d')
-	Energy = array('d')
-	energyfractionscin = array('d')
-	energyfractioncher = array('d')
-	energyfraction = array('d')
+	MeanEnergy = array('d')
 	resolutionscin = array('d')
 	resolutioncher = array('d')
 	resolution = array('d')
 
-	energies = array('d',[10,20,30,40,50,60,70,80,90,100,110,120,130,140,150])
-	sqrtenergies = array('d',[1/(x**0.5) for x in energies])
-
-	inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
-	#inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
-	for counter, inputfile in enumerate(inputfiles[1:]):
+	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
+	inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
+	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
 		print "Analyzing: "+str(inputfile)+" \n"
 		tree = TTree()
@@ -46,10 +40,12 @@ def recenergy():
 		ScinEnergyHist = TH1F("scinenergy_", str(counter+1)+"_scin", 200, 0., 200.)
 		CherEnergyHist = TH1F("cherenergy_", str(counter+1)+"_cher", 200, 0., 200.)	
 		RecEnergyHist = TH1F("RecEnergy_",str(counter+1)+"_Energy", 200, 0., 200.)
-		
-		Signalscinhist = TH1F("scintot_", str(counter+1)+"_scin", 3000, 0., 30000)
-		EnergyHist = TH1F("Energy_",str(counter+1)+"_Energy", 200, 0., 200.)
-		
+		Energytot = 0.0
+
+		energy = 40.0
+		sqrtenergy = 1/(40.0**0.5)
+		towers = array('d', range(1,76))
+	
 		#loop over events
 		for Event in range(int(tree.GetEntries())):	
 
@@ -70,12 +66,6 @@ def recenergy():
 			VectorR = tree.VectorR
 			VectorL = tree.VectorL
 			
-			totalsignalscin = sum(BarrelR_VectorSignals)+sum(BarrelL_VectorSignals)
-			Signalscinhist.Fill(totalsignalscin)
-
-			energytot = (sum(VectorR)+sum(VectorL))/1000
-			EnergyHist.Fill(energytot)
-			
 			#apply calibrations
 			Calib_BarrelL_VectorSignals = calibration.calibscin(BarrelL_VectorSignals)
 			Calib_BarrelR_VectorSignals = calibration.calibscin(BarrelR_VectorSignals)
@@ -87,11 +77,12 @@ def recenergy():
 			energycher = sum(Calib_BarrelR_VectorSignalsCher)+sum(Calib_BarrelL_VectorSignalsCher)
 
 			ScinEnergyHist.Fill(energyscin)
-			sigmascin = 19.77*(energyscin**0.5)+0.5*energyscin
 			CherEnergyHist.Fill(energycher)
-			sigmacher = 21.85*(energycher**0.5)
-			RecEnergyHist.Fill(((1/sigmascin)*energyscin+(1/sigmacher)*energycher)/(1/sigmascin+1/sigmacher))
+			RecEnergyHist.Fill((energyscin+energycher)/2)
 
+			Energytot += sum(VectorL)+sum(VectorR)
+
+		print energy, Energytot/(3000*1000)
 		print ScinEnergyHist.GetMean(), CherEnergyHist.GetMean()
 		displayfile.cd()
 		gStyle.SetOptStat(111)
@@ -101,64 +92,37 @@ def recenergy():
 		RecEnergyHist.Write()
 		ScinEnergyHist.Write()
 		CherEnergyHist.Write()
-		Signalscinhist.Write()
-		EnergyHist.Write()
-		MeanEnergyScin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(1))
-		MeanEnergyCher.append(CherEnergyHist.GetFunction("gaus").GetParameter(1))
+		MeanEnergyScin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot/(3000*1000))
+		MeanEnergyCher.append(CherEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot/(3000*1000))
+		MeanEnergy.append(RecEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot/(3000*1000))
 		resolution.append(RecEnergyHist.GetFunction("gaus").GetParameter(2)/RecEnergyHist.GetFunction("gaus").GetParameter(1))
-		energyfractionscin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(1)/energies[counter])
-		energyfractioncher.append(CherEnergyHist.GetFunction("gaus").GetParameter(1)/energies[counter])
-		energyfraction.append(RecEnergyHist.GetFunction("gaus").GetParameter(1)/energies[counter])
 		resolutionscin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(2)/ScinEnergyHist.GetFunction("gaus").GetParameter(1))
 		resolutioncher.append(CherEnergyHist.GetFunction("gaus").GetParameter(2)/CherEnergyHist.GetFunction("gaus").GetParameter(1))
 
-	LinearityGraph = TGraph(len(energies), energies, energyfraction)
+	print MeanEnergyScin, MeanEnergyCher
+	LinearityGraph = TGraph(len(towers), towers, MeanEnergy)
 	LinearityGraph.SetName("LinearityGraph")
 	LinearityGraph.Write()
-	LinearityGraphScin = TGraph(len(energies), energies, energyfractionscin)
-	LinearityGraphCher = TGraph(len(energies), energies, energyfractioncher)
+	LinearityGraphScin = TGraph(len(towers), towers, MeanEnergyScin)
+	LinearityGraphCher = TGraph(len(towers), towers, MeanEnergyCher)
 	LinearityGraphCher.SetName("LinearityGraphCher")
 	LinearityGraphCher.Write()
 	LinearityGraphScin.SetName("LinearityGraphScin")
 	LinearityGraphScin.Write()
-
-	ResolutionGraphScin = TGraph(len(energies), sqrtenergies, resolutionscin)
-	func = TF1("func", "(([0]*x)**2+[1]**2)**0.5", 0.08, 0.32)
-	ResolutionGraphCher = TGraph(len(energies), sqrtenergies, resolutioncher)
-	ResolutionGraphScin.Fit("func", "R")
-	ResolutionGraphCher.Fit("func", "R")
+	ResolutionGraphScin = TGraph(len(towers), towers, resolutionscin)
+	ResolutionGraphCher = TGraph(len(towers), towers, resolutioncher)
 	ResolutionGraphScin.SetName("ResolutionGraphScin")
 	ResolutionGraphScin.Write()
 	ResolutionGraphCher.SetName("ResolutionGraphCher")
 	ResolutionGraphCher.Write()
-	ResolutionGraph = TGraph(len(energies), sqrtenergies, resolution)
-	ResolutionGraph.Fit("func", "R")
+	ResolutionGraph = TGraph(len(towers), towers, resolution)
 	ResolutionGraph.SetName("ResolutionGraph")
 	ResolutionGraph.Write()
-
-	rd52copper = array('d',[0.0447850542619,0.0345967477525
-				,0.0300831604419
-				,0.0273925271309
-				,0.0255563491861
-				,0.0242009389361
-				,0.0231475147027
-				,0.0222983738762
-				,0.0215950180873
-				,0.021
-				,0.0204880884817
-				,0.0200415802209
-				,0.0196476382124
-				,0.019296696802
-				,0.0189814623902
-				])
-	rd52graph = TGraph(len(energies), sqrtenergies, rd52copper)
-
 
 	EMResolutions = TMultiGraph()
 	EMResolutions.Add(ResolutionGraphScin)
 	EMResolutions.Add(ResolutionGraphCher)
 	EMResolutions.Add(ResolutionGraph)
-	EMResolutions.Add(rd52graph)
 	EMResolutions.SetName("EMResolutions")
 	EMResolutions.Write()
 
@@ -169,5 +133,4 @@ def recenergy():
 	Linearities.SetName("Linearities")
 	Linearities.Write()
 
-
-recenergy()
+energylinearity()

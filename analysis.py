@@ -15,7 +15,7 @@ if machine == "linux":
 		path = str("/home/lorenzo/cernbox/work/Git-to-Mac/AnalysisIDEACalorimeter/")
 		datapath = str("/home/lorenzo/Desktop/Calo/results/Energylinearity/")
 if machine == "office":
-		datapath = str("/home/software/Calo/results/NewTowerScan4/")
+		datapath = str("/home/software/Calo/results/SliceScan/")
 
 def eventdisplay(inputfile, outputfile, histoname):
 	#inputfile = raw_input("Insert root file: ")
@@ -76,9 +76,9 @@ def towercalibration():
 	ScinSignalTot = array('d')
 	
 
-	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
+	inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
 	#inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
-	inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
+	#inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
@@ -136,8 +136,8 @@ def towercalibration():
 			energytot.append(totalenergy)
 			scinsignaltot.append(totalsignalscin)
 			chersignaltot.append(totalsignalcher)
-			#if list(BarrelR_VectorSignals).index(max(BarrelR_VectorSignals)) != counter+1:
-					#print "WRONG!!!!!!!!!!!"	
+			if list(BarrelR_VectorSignals).index(max(BarrelR_VectorSignals)) != counter+1:
+					print "WRONG!!!!!!!!!!!"	
 			if Event < 1:
 				print "Max found at: "+str(list(BarrelR_VectorSignals).index(signalscin))+str(list(BarrelR_VectorSignalsCher).index(signalcher))+str(list(VectorR).index(energytower*1000))+" for file "+str(counter+1) #to check tower mostly hitten is the correct one
 				displayfile.cd()
@@ -192,6 +192,8 @@ def towercalibration():
 	EnergyTowerGraph = TGraph(n, Tower, EnergyTower)
 	EnergyTowerGraph.SetName("EnergyTower")
 	EnergyTowerGraph.Write()
+	linefill36 = TF1("36gev", str(36.0), 0., 90.)
+	linefill36.Write()
 	RMSGraphScin = TGraph(n, Tower, RMSScin)
 	RMSGraphScin.SetName("Calibration_RMSGraphScin")
 	RMSGraphCher = TGraph(n, Tower, RMSCher)

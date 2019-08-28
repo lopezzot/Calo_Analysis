@@ -4,6 +4,7 @@ import numpy as np
 import time
 from ROOT import TH2F, TFile, TH1F, TGraph2D, TLine
 import circle
+import createangularesolutionplot
 
 def cart2sph(x,y,z):
 	theta = np.arctan2(y,x)
@@ -11,13 +12,17 @@ def cart2sph(x,y,z):
 	r = np.sqrt(x**2 + y**2 + z**2)
 	return theta, phi, r
 #energies = [30,40,50,60,70,80,90,100,110,120,130,140,150]
-energies = [40]
+energies = [40, 50, 60]
+outputfile = TFile("ElectronAngle_.root", "RECREATE")
 for e in energies:
-	outputfile = TFile("Electron_"+str(e)+".root", "RECREATE")	
 
 	#file = "/Users/lorenzo/Desktop/Git_IDEA_CALO_FIBER-build/B4a/Event0-0.txt"
 	#file = "Event-0-0-40GeV.txt"
-	file = "/home/software/Calo/results/angular_res/Electron_"+str(e)+".txt"	
+	file = "/home/software/Calo/results/Electron_ang_res_1_0/Electron_"+str(e)+".txt"	
+
+	energies = []
+	angrestheta = []
+	angresphi = []
 
 	EvtID = np.array([line.split('\t')[0] for line in open(file,"r").readlines()][1:],'i')
 	NumFiber = np.array([x.split('\t')[1] for x in open(file,"r").readlines()][1:],'d')
@@ -29,14 +34,14 @@ for e in energies:
 	Slice = np.array([x.split('\t')[7] for x in open(file,"r").readlines()][1:],'d')
 	Tower = np.array([x.split('\t')[8] for x in open(file,"r").readlines()][1:],'d')	
 
-	ThetaHist = TH1F("Theta", "Theta", 500, -0.02, 0.02)
-	PhiHist = TH1F("Phi", "Phi", 500, -0.02, 0.02)	
+	ThetaHist = TH1F("Theta"+str(e), "Theta", 500, -0.02, 0.02)
+	PhiHist = TH1F("Phi"+str(e), "Phi", 500, -0.04, 0.04)	
 
-	ThetaHistC = TH1F("Theta_C", "Theta", 500, -0.02, 0.02)
-	PhiHistC = TH1F("Phi_C", "Phi", 500, -0.02, 0.02)	
+	ThetaHistC = TH1F("Theta_C"+str(e), "Theta", 500, -0.02, 0.02)
+	PhiHistC = TH1F("Phi_C"+str(e), "Phi", 500, -0.04, 0.04)	
 
-	ThetaHistCS = TH1F("Theta_CS", "Theta", 500, -0.02, 0.02)
-	PhiHistCS = TH1F("Phi_CS", "Phi", 500, -0.02, 0.02)	
+	ThetaHistCS = TH1F("Theta_CS"+str(e), "Theta", 500, -0.02, 0.02)
+	PhiHistCS = TH1F("Phi_CS"+str(e), "Phi", 500, -0.04, 0.04)	
 
 	percentages_array = [0.0,0.0,0.0,0.0,0.0]
 	percentages_array = np.array(percentages_array)
@@ -67,8 +72,8 @@ for e in energies:
 			theta_C.append(Ctheta)
 			phi_C.append(Cphi)		
 
-		ScinPlot = TH2F("Scin_"+str(i), "Scin_"+str(i), int(100), float(np.mean(theta_S)-0.05), float(np.mean(theta_S)+0.05), int(100), float(np.mean(phi_S)-0.05),float(np.mean(phi_S)+0.05))
-		CherPlot = TH2F("Cher_"+str(i), "Cher_"+str(i), int(100),  float(np.mean(theta_S)-0.05), float(np.mean(theta_S)+0.05), int(100), float(np.mean(phi_S)-0.05),float(np.mean(phi_S)+0.05))
+		ScinPlot = TH2F("Scin_"+str(e), "Scin_"+str(e), int(100), float(np.mean(theta_S)-0.05), float(np.mean(theta_S)+0.05), int(100), float(np.mean(phi_S)-0.05),float(np.mean(phi_S)+0.05))
+		CherPlot = TH2F("Cher_"+str(e), "Cher_"+str(e), int(100),  float(np.mean(theta_S)-0.05), float(np.mean(theta_S)+0.05), int(100), float(np.mean(phi_S)-0.05),float(np.mean(phi_S)+0.05))
 		
 		n = len(theta_S)
 		array_theta_S = np.array(theta_S, 'd')
@@ -140,7 +145,7 @@ for e in energies:
 
 		percentages_array = percentages_array + np.array(percentages) 
 		print str(i)+" "+str(percentages)
-		if i<10:
+		if i<1:
 			ScinPlot.Write()
 			CherPlot.Write()
 			ScinGraph.Write()
@@ -164,9 +169,22 @@ for e in energies:
 
 	percentages_array = percentages_array/3000
 	print percentages_array
+	ThetaHist.Fit("gaus")
+	PhiHist.Fit("gaus")
+	ThetaHistC.Fit("gaus")
+	PhiHistC.Fit("gaus")
+	ThetaHistCS.Fit("gaus")
+	PhiHistCS.Fit("gaus")
+
 	ThetaHist.Write()
 	PhiHist.Write()
 	ThetaHistC.Write()
 	PhiHistC.Write()
 	ThetaHistCS.Write()
 	PhiHistCS.Write()
+
+	energies.append(float(e))
+	angrestheta.append(ThetaHistCS.GetFunction("gaus").GetParameter(2)*1000)
+	angresphi.append(PhiHistCS.GetFunction("gaus").GetParameter(2)*1000)
+	print angrestheta, angresphi, energies
+createangularesolutionplot.angresplot(energies, angrestheta, angresphi)
