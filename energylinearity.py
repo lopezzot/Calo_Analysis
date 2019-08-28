@@ -30,7 +30,9 @@ def energylinearity():
 	resolution = array('d')
 
 	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
-	inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
+	#inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
+	inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
+	
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
 		print "Analyzing: "+str(inputfile)+" \n"
@@ -80,10 +82,10 @@ def energylinearity():
 			CherEnergyHist.Fill(energycher)
 			RecEnergyHist.Fill((energyscin+energycher)/2)
 
-			Energytot += sum(VectorL)+sum(VectorR)
+			Energytot += (sum(VectorL)+sum(VectorR))/1000
 
-		print energy, Energytot/(3000*1000)
-		print ScinEnergyHist.GetMean(), CherEnergyHist.GetMean()
+		Energytot = Energytot/3000	
+		print Energytot, ScinEnergyHist.GetMean(), CherEnergyHist.GetMean()
 		displayfile.cd()
 		gStyle.SetOptStat(111)
 		ScinEnergyHist.Fit("gaus")
@@ -92,9 +94,9 @@ def energylinearity():
 		RecEnergyHist.Write()
 		ScinEnergyHist.Write()
 		CherEnergyHist.Write()
-		MeanEnergyScin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot/(3000*1000))
-		MeanEnergyCher.append(CherEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot/(3000*1000))
-		MeanEnergy.append(RecEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot/(3000*1000))
+		MeanEnergyScin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot)
+		MeanEnergyCher.append(CherEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot)
+		MeanEnergy.append(RecEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot)
 		resolution.append(RecEnergyHist.GetFunction("gaus").GetParameter(2)/RecEnergyHist.GetFunction("gaus").GetParameter(1))
 		resolutionscin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(2)/ScinEnergyHist.GetFunction("gaus").GetParameter(1))
 		resolutioncher.append(CherEnergyHist.GetFunction("gaus").GetParameter(2)/CherEnergyHist.GetFunction("gaus").GetParameter(1))
