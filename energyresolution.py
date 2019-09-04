@@ -43,12 +43,12 @@ def recenergy():
 		tree = TTree()
 		inputfile.GetObject("B4", tree)	
 
-		ScinEnergyHist = TH1F("scinenergy_", str(counter+1)+"_scin", 200, 0., 200.)
-		CherEnergyHist = TH1F("cherenergy_", str(counter+1)+"_cher", 200, 0., 200.)	
-		RecEnergyHist = TH1F("RecEnergy_",str(counter+1)+"_Energy", 200, 0., 200.)
+		ScinEnergyHist = TH1F("scinenergy_", str(counter+1)+"_scin", 500, 0., 200.)
+		CherEnergyHist = TH1F("cherenergy_", str(counter+1)+"_cher", 500, 0., 200.)	
+		RecEnergyHist = TH1F("RecEnergy_",str(counter+1)+"_Energy", 500, 0., 200.)
 		
 		Signalscinhist = TH1F("scintot_", str(counter+1)+"_scin", 3000, 0., 30000)
-		EnergyHist = TH1F("Energy_",str(counter+1)+"_Energy", 200, 0., 200.)
+		EnergyHist = TH1F("Energy_",str(counter+1)+"_Energy", 500, 0., 200.)
 		
 		#loop over events
 		for Event in range(int(tree.GetEntries())):	
@@ -106,9 +106,9 @@ def recenergy():
 		MeanEnergyScin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(1))
 		MeanEnergyCher.append(CherEnergyHist.GetFunction("gaus").GetParameter(1))
 		resolution.append(RecEnergyHist.GetFunction("gaus").GetParameter(2)/RecEnergyHist.GetFunction("gaus").GetParameter(1))
-		energyfractionscin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(1)/energies[counter])
-		energyfractioncher.append(CherEnergyHist.GetFunction("gaus").GetParameter(1)/energies[counter])
-		energyfraction.append(RecEnergyHist.GetFunction("gaus").GetParameter(1)/energies[counter])
+		energyfractionscin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(1))
+		energyfractioncher.append(CherEnergyHist.GetFunction("gaus").GetParameter(1))
+		energyfraction.append(RecEnergyHist.GetFunction("gaus").GetParameter(1))
 		resolutionscin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(2)/ScinEnergyHist.GetFunction("gaus").GetParameter(1))
 		resolutioncher.append(CherEnergyHist.GetFunction("gaus").GetParameter(2)/CherEnergyHist.GetFunction("gaus").GetParameter(1))
 
@@ -123,7 +123,7 @@ def recenergy():
 	LinearityGraphScin.Write()
 
 	ResolutionGraphScin = TGraph(len(energies), sqrtenergies, resolutionscin)
-	func = TF1("func", "(([0]*x)**2+[1]**2)**0.5", 0.08, 0.32)
+	func = TF1("func", "[0]*x+[1]", 0.08, 0.32)
 	ResolutionGraphCher = TGraph(len(energies), sqrtenergies, resolutioncher)
 	ResolutionGraphScin.Fit("func", "R")
 	ResolutionGraphCher.Fit("func", "R")

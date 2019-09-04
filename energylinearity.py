@@ -30,8 +30,8 @@ def energylinearity():
 	resolution = array('d')
 
 	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
-	#inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
-	inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
+	inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
+	#inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
@@ -94,8 +94,8 @@ def energylinearity():
 		RecEnergyHist.Write()
 		ScinEnergyHist.Write()
 		CherEnergyHist.Write()
-		MeanEnergyScin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot)
-		MeanEnergyCher.append(CherEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot)
+		MeanEnergyScin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(1)/energy)
+		MeanEnergyCher.append(CherEnergyHist.GetFunction("gaus").GetParameter(1)/energy)
 		MeanEnergy.append(RecEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot)
 		resolution.append(RecEnergyHist.GetFunction("gaus").GetParameter(2)/RecEnergyHist.GetFunction("gaus").GetParameter(1))
 		resolutionscin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(2)/ScinEnergyHist.GetFunction("gaus").GetParameter(1))

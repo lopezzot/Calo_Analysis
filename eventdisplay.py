@@ -2,7 +2,7 @@ import os
 import numpy as np
 #import matplotlib.pyplot as plt
 import time
-from ROOT import TH2F, TFile, TH1F, TGraph2D, TLine
+from ROOT import TH2F, TFile, TH1F, TGraph2D, TLine, gStyle
 import circle
 import createangularesolutionplot
 
@@ -10,19 +10,24 @@ def cart2sph(x,y,z):
 	theta = np.arctan2(y,x)
 	phi = np.arctan2(z,np.sqrt(x**2 + y**2))
 	r = np.sqrt(x**2 + y**2 + z**2)
-	return theta, phi, r
-#energies = [30,40,50,60,70,80,90,100,110,120,130,140,150]
-energies = [40, 50, 60]
-outputfile = TFile("ElectronAngle_.root", "RECREATE")
+	return phi, theta, r
+energies = [30,40,50,60,70,80,90,100,110,120,130,140,150]
+#energies = [40, 50, 60]
+outputfile = TFile("ElectronAngle.root", "RECREATE")
 for e in energies:
 
 	#file = "/Users/lorenzo/Desktop/Git_IDEA_CALO_FIBER-build/B4a/Event0-0.txt"
 	#file = "Event-0-0-40GeV.txt"
 	file = "/home/software/Calo/results/Electron_ang_res_1_0/Electron_"+str(e)+".txt"	
 
-	energies = []
-	angrestheta = []
-	angresphi = []
+	if e == energies[0]:
+		energies = []
+		angrestheta = []
+		angresphi = []
+		angrestheta_c = []
+		angrestheta_s = []
+		angresphi_c = []
+		angresphi_s = []
 
 	EvtID = np.array([line.split('\t')[0] for line in open(file,"r").readlines()][1:],'i')
 	NumFiber = np.array([x.split('\t')[1] for x in open(file,"r").readlines()][1:],'d')
@@ -34,14 +39,14 @@ for e in energies:
 	Slice = np.array([x.split('\t')[7] for x in open(file,"r").readlines()][1:],'d')
 	Tower = np.array([x.split('\t')[8] for x in open(file,"r").readlines()][1:],'d')	
 
-	ThetaHist = TH1F("Theta"+str(e), "Theta", 500, -0.02, 0.02)
-	PhiHist = TH1F("Phi"+str(e), "Phi", 500, -0.04, 0.04)	
+	ThetaHist = TH1F("Theta"+str(e), "Theta", 500, 0.01, 0.03)
+	PhiHist = TH1F("Phi"+str(e), "Phi", 500, -0.01, 0.01)	
 
-	ThetaHistC = TH1F("Theta_C"+str(e), "Theta", 500, -0.02, 0.02)
-	PhiHistC = TH1F("Phi_C"+str(e), "Phi", 500, -0.04, 0.04)	
+	ThetaHistC = TH1F("Theta_C"+str(e), "Theta", 500, 0.01, 0.03)
+	PhiHistC = TH1F("Phi_C"+str(e), "Phi", 500, -0.01, 0.01)	
 
-	ThetaHistCS = TH1F("Theta_CS"+str(e), "Theta", 500, -0.02, 0.02)
-	PhiHistCS = TH1F("Phi_CS"+str(e), "Phi", 500, -0.04, 0.04)	
+	ThetaHistCS = TH1F("Theta_CS"+str(e), "Theta", 500, 0.01, 0.03)
+	PhiHistCS = TH1F("Phi_CS"+str(e), "Phi", 500, -0.01, 0.01)	
 
 	percentages_array = [0.0,0.0,0.0,0.0,0.0]
 	percentages_array = np.array(percentages_array)
@@ -80,14 +85,14 @@ for e in energies:
 		array_phi_S = np.array(phi_S, 'd')
 		array_E_s = np.array(E_s, 'd')
 		ScinGraph = TGraph2D(n, array_theta_S, array_phi_S, array_E_s)
-		ScinGraph.SetName("ScinGraph_"+str(i))
+		ScinGraph.SetName("ScinGraph_"+str(e))
 
 		n = len(theta_C)
 		array_theta_C = np.array(theta_C, 'd')
 		array_phi_C = np.array(phi_C, 'd')
 		array_E_c = np.array(E_c, 'd')
 		CherGraph = TGraph2D(n, array_theta_C, array_phi_C, array_E_c)
-		CherGraph.SetName("CherGraph_"+str(i))
+		CherGraph.SetName("CherGraph_"+str(e))
 
 		MeanTheta = 0.
 		MeanPhi = 0.
@@ -146,6 +151,7 @@ for e in energies:
 		percentages_array = percentages_array + np.array(percentages) 
 		print str(i)+" "+str(percentages)
 		if i<1:
+			gStyle.SetPalette(1)
 			ScinPlot.Write()
 			CherPlot.Write()
 			ScinGraph.Write()
@@ -186,5 +192,25 @@ for e in energies:
 	energies.append(float(e))
 	angrestheta.append(ThetaHistCS.GetFunction("gaus").GetParameter(2)*1000)
 	angresphi.append(PhiHistCS.GetFunction("gaus").GetParameter(2)*1000)
+	angrestheta_s.append(ThetaHist.GetFunction("gaus").GetParameter(2)*1000)
+	angresphi_s.append(PhiHist.GetFunction("gaus").GetParameter(2)*1000)
+	angrestheta_c.append(ThetaHistC.GetFunction("gaus").GetParameter(2)*1000)
+	angresphi_c.append(PhiHistC.GetFunction("gaus").GetParameter(2)*1000)
+		
 	print angrestheta, angresphi, energies
-createangularesolutionplot.angresplot(energies, angrestheta, angresphi)
+gStyle.SetOptStat(111)
+ThetaGraph, PhiGraph = createangularesolutionplot.angresplot(energies, angrestheta, angresphi)
+ThetaGraph_s, PhiGraph_s = createangularesolutionplot.angresplot(energies, angrestheta_s, angresphi_s)
+ThetaGraph_c, PhiGraph_c = createangularesolutionplot.angresplot(energies, angrestheta_c, angresphi_c)
+ThetaGraph.SetName("ThetaGraph")
+ThetaGraph.Write()
+PhiGraph.SetName("PhiGraph")
+PhiGraph.Write()
+ThetaGraph_s.SetName("ThetaGraph_s")
+ThetaGraph_s.Write()
+PhiGraph_s.SetName("PhiGraph_s")
+PhiGraph_s.Write()
+ThetaGraph_c.SetName("ThetaGraph_c")
+ThetaGraph_c.Write()
+PhiGraph_c.SetName("PhiGraph_c")
+PhiGraph_c.Write()

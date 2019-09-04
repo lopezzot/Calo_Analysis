@@ -11,7 +11,7 @@ def angresplot(energies, angrestheta, angresphi):
 	angrestheta_arr = array('d')
 	angresphi_arr = array('d')
 
-	outputfile = TFile("angres.root", "RECREATE")
+	#outputfile = TFile("angres.root", "RECREATE")
 	for counter, i in enumerate(angresphi):
 		angresphi_arr.append(i)
 	for counter, t in enumerate(angrestheta):
@@ -23,17 +23,14 @@ def angresplot(energies, angrestheta, angresphi):
 	ThetaGraph = TGraph(len(energies), energies_arr, angrestheta_arr)
 	PhiGraph = TGraph(len(energies), energies_arr, angresphi_arr)	
 
-	resolutionfittheta = TF1("resolutionfit", '[0]/(x**0.5)+[1]/x+[2]', 0.5, 160.)
+	resolutionfittheta = TF1("resolutionfit", '[0]/(x**0.5)+[1]', 30., 150.)
 	#resolutionfittheta.SetParLimits(2, 0.5, 0.8)
-	resolutionfitphi = TF1("resolutionfit", '[0]/(x**0.5)+[1]/x+[2]', 0.5, 160.)
+	resolutionfitphi = TF1("resolutionfit", '[0]/(x**0.5)+[1]', 30., 150.)
 	#resolutionfitphi.SetParLimits(2, 0.5, 0.8)	
 
 	ThetaGraph.Fit(resolutionfittheta)
 	PhiGraph.Fit(resolutionfitphi)	
-
-	gStyle.SetOptStat(1)
-	ThetaGraph.Write()
-	PhiGraph.Write()
+	return ThetaGraph, PhiGraph
 
 
 

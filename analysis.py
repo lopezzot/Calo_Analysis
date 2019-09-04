@@ -15,7 +15,7 @@ if machine == "linux":
 		path = str("/home/lorenzo/cernbox/work/Git-to-Mac/AnalysisIDEACalorimeter/")
 		datapath = str("/home/lorenzo/Desktop/Calo/results/Energylinearity/")
 if machine == "office":
-		datapath = str("/home/software/Calo/results/SliceScan/")
+		datapath = str("/home/software/Calo/results/NewTowerScan4/")
 
 def eventdisplay(inputfile, outputfile, histoname):
 	#inputfile = raw_input("Insert root file: ")
@@ -76,8 +76,8 @@ def towercalibration():
 	ScinSignalTot = array('d')
 	
 
-	inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
-	#inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
+	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
+	inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	#inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	
 	for counter, inputfile in enumerate(inputfiles):
@@ -159,7 +159,7 @@ def towercalibration():
 		RMSScin.append(ScinHist.GetRMS())
 		RMSCher.append(CherHist.GetRMS())
 		EnergyTower.append(EnergyTowerHist.GetMean())
-		Energy.append(EnergyHist.GetMean())
+		Energy.append(EnergyHist.GetMean()/40.)
 		ScinSignalTot.append(Signalscinhist.GetMean())
 		Signalscinhist.Write()
 		#print ScinHist.GetMean(), CherHist.GetMean(), EnergyTowerHist.GetMean()
@@ -187,6 +187,7 @@ def towercalibration():
 	ScinTotGraph.SetName("ScinTotGraph")
 	ScinTotGraph.Write()
 	EnergyGraph = TGraph(n, Tower, Energy)
+	print "Energy containment: "+str(Energy)
 	EnergyGraph.SetName("EnergyGraph")
 	EnergyGraph.Write()
 	EnergyTowerGraph = TGraph(n, Tower, EnergyTower)
@@ -228,9 +229,11 @@ def towercalibration():
 	ResponseRMSGraphCher = TGraph(n, Tower, ResponseRMSCher)
 	ResponseRMSGraphCher.SetName("ResponseRMSGraphCher")
 	ResponseMeanGraphScin = TGraphErrors(n, Tower, ResponseMeanScin, Zeros, Responseerrorsscin)
+	print "Response scin: "+str(ResponseMeanScin)
 	ResponseMeanGraphScin.SetName("ResponseMeanGraphScin")
 	ResponseMeanGraphCher = TGraphErrors(n, Tower, ResponseMeanCher, Zeros, Responseerrorscher)
 	ResponseMeanGraphCher.SetName("ResponseMeanGraphCher")
+	print "Response cher: "+str(ResponseMeanCher)
 	x = array('d', (0., 90., 90., 0.))
 	y = array('d', (np.mean(ResponseMeanScin)-0.01*np.mean(ResponseMeanScin), np.mean(ResponseMeanScin)-0.01*np.mean(ResponseMeanScin), np.mean(ResponseMeanScin)+0.01*np.mean(ResponseMeanScin), np.mean(ResponseMeanScin)+0.01*np.mean(ResponseMeanScin)))
 	Fillgraph = TGraph(4, x, y )
