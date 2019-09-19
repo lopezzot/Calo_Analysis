@@ -29,8 +29,8 @@ def energylinearity():
 	resolutioncher = array('d')
 	resolution = array('d')
 
-	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
-	inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
+	inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
+	#inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	#inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	
 	for counter, inputfile in enumerate(inputfiles):
@@ -74,13 +74,18 @@ def energylinearity():
 			Calib_BarrelL_VectorSignalsCher = calibration.calibcher(BarrelL_VectorSignalsCher)
 			Calib_BarrelR_VectorSignalsCher = calibration.calibcher(BarrelR_VectorSignalsCher)
 			#end of calibrations
-
+			
 			energyscin = sum(Calib_BarrelR_VectorSignals)+sum(Calib_BarrelL_VectorSignals)
 			energycher = sum(Calib_BarrelR_VectorSignalsCher)+sum(Calib_BarrelL_VectorSignalsCher)
 
 			ScinEnergyHist.Fill(energyscin)
 			CherEnergyHist.Fill(energycher)
-			RecEnergyHist.Fill((energyscin+energycher)/2)
+
+			sigmascin = 0.15*(energyscin**0.5)+0.012*energyscin
+			sigmacher = 0.18*(energycher**0.5)+0.0045*energycher
+			RecEnergyHist.Fill((energyscin/(sigmascin**2)+energycher/(sigmacher**2))/(1/sigmascin**2+1/sigmacher**2))
+
+			#RecEnergyHist.Fill((energyscin+energycher)/2)
 
 			Energytot += (sum(VectorL)+sum(VectorR))/1000
 
@@ -94,9 +99,11 @@ def energylinearity():
 		RecEnergyHist.Write()
 		ScinEnergyHist.Write()
 		CherEnergyHist.Write()
-		MeanEnergyScin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(1)/energy)
-		MeanEnergyCher.append(CherEnergyHist.GetFunction("gaus").GetParameter(1)/energy)
-		MeanEnergy.append(RecEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot)
+		#MeanEnergyScin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot)
+		MeanEnergyScin.append(ScinEnergyHist.GetMean()/energy)
+		#MeanEnergyCher.append(CherEnergyHist.GetFunction("gaus").GetParameter(1)/Energytot)
+		MeanEnergyCher.append(CherEnergyHist.GetMean()/energy)
+		MeanEnergy.append(RecEnergyHist.GetFunction("gaus").GetParameter(1)/energy)
 		resolution.append(RecEnergyHist.GetFunction("gaus").GetParameter(2)/RecEnergyHist.GetFunction("gaus").GetParameter(1))
 		resolutionscin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(2)/ScinEnergyHist.GetFunction("gaus").GetParameter(1))
 		resolutioncher.append(CherEnergyHist.GetFunction("gaus").GetParameter(2)/CherEnergyHist.GetFunction("gaus").GetParameter(1))
@@ -120,6 +127,14 @@ def energylinearity():
 	ResolutionGraph = TGraph(len(towers), towers, resolution)
 	ResolutionGraph.SetName("ResolutionGraph")
 	ResolutionGraph.Write()
+	x2 = array('d', (0., 90., 90., 0.))
+	y2 = array('d', (0.024, 0.024, 0.034, 0.034))
+	Fillgraph2 = TGraph(4, x2, y2 )
+	Fillgraph2.SetName("ban")
+	Fillgraph2.Write()
+	linefill1 = TF1("1", str(1.0), 0., 90.)
+	linefill1.Write()
+	
 
 	EMResolutions = TMultiGraph()
 	EMResolutions.Add(ResolutionGraphScin)

@@ -2,33 +2,64 @@ import os
 import numpy as np
 #import matplotlib.pyplot as plt
 import time
-from ROOT import TH2F, TFile, TH1F, TGraph2D, TLine, gStyle
+from ROOT import TH2F, TFile, TH1F, TGraph2D, TLine, gStyle, TGraph
 import circle
 import createangularesolutionplot
+from array import array
+import math
 
 def cart2sph(x,y,z):
 	theta = np.arctan2(y,x)
 	phi = np.arctan2(z,np.sqrt(x**2 + y**2))
 	r = np.sqrt(x**2 + y**2 + z**2)
 	return phi, theta, r
-energies = [30,40,50,60,70,80,90,100,110,120,130,140,150]
-#energies = [40]
-outputfile = TFile("ElectronAngle.root", "RECREATE")
-for e in energies:
 
-	#file = "/Users/lorenzo/Desktop/Git_IDEA_CALO_FIBER-build/B4a/Event0-0.txt"
-	#file = "Event-0-0-40GeV.txt"
-	file = "/home/software/Calo/results/Electron_ang_res_1_1/Electron_"+str(e)+".txt"	
-	#file = "/home/software/Calo/results/angular_res/Electron_"+str(e)+".txt"
+phis=[5.0,
+15.0,
+25.0,
+35.0,
+45.0,
+55.0,
+65.0,
+75.0,
+85.0,
+95.0,
+105.0,
+115.0,
+125.0,
+135.0,
+145.0,
+155.0,
+165.0,
+175.0,
+185.0,
+195.0,
+205.0,
+215.0,
+225.0,
+235.0,
+245.0,
+255.0,
+265.0,
+275.0,
+285.0,
+295.0,
+305.0,
+315.0,
+325.0,
+335.0,
+345.0,
+355.0]
 
-	if e == energies[0]:
-		energies = []
-		angrestheta = []
-		angresphi = []
-		angrestheta_c = []
-		angrestheta_s = []
-		angresphi_c = []
-		angresphi_s = []
+outputfile = TFile("ElectronAngleUniformity_phi.root", "RECREATE")
+for phi in phis:
+
+	file = "/home/software/Calo/results/Phiuniformity/Phi_"+str(phi)+".txt"	
+
+	if phi == phis[0]:
+		truephis = array('d')
+		angresphi = array('d')
+		phis = array('d')
 
 	EvtID = np.array([line.split('\t')[0] for line in open(file,"r").readlines()][1:],'i')
 	NumFiber = np.array([x.split('\t')[1] for x in open(file,"r").readlines()][1:],'d')
@@ -40,17 +71,17 @@ for e in energies:
 	Slice = np.array([x.split('\t')[7] for x in open(file,"r").readlines()][1:],'d')
 	Tower = np.array([x.split('\t')[8] for x in open(file,"r").readlines()][1:],'d')	
 
-	ThetaHist = TH1F("Theta"+str(e), "Theta", 500, -0.01, 0.03)
-	PhiHist = TH1F("Phi"+str(e), "Phi", 500, -0.01, 0.03)	
+	phirad = phi*math.pi/180.
 
-	ThetaHistC = TH1F("Theta_C"+str(e), "Theta", 500, -0.01, 0.03)
-	PhiHistC = TH1F("Phi_C"+str(e), "Phi", 500, -0.01, 0.03)	
+	ThetaHist = TH1F("Theta"+str(phi), "phi", 500, -0.01, 0.01)
+	PhiHist = TH1F("Phi"+str(phi), "Phi", 500, phirad-0.01, phirad+0.01)	
 
-	ThetaHistCS = TH1F("Theta_CS"+str(e), "Theta", 500, -0.01, 0.03)
-	PhiHistCS = TH1F("Phi_CS"+str(e), "Phi", 500, -0.01, 0.03)	
+	ThetaHistC = TH1F("Theta_C"+str(phi), "phi", 500, -0.01, 0.01)
+	PhiHistC = TH1F("Phi_C"+str(phi), "Phi", 500, phirad-0.01, phirad+0.01)	
 
-	percentages_array = [0.0,0.0,0.0,0.0,0.0]
-	percentages_array = np.array(percentages_array)
+	ThetaHistCS = TH1F("Theta_CS"+str(phi), "phi", 500, -0.01, 0.01)
+	PhiHistCS = TH1F("Phi_CS"+str(phi), "Phi", 500, phirad-0.01, phirad+0.01)	
+
 	for i in range (0,int(max(EvtID[1:]))+1):
 		# S have Flag == 1 C == 0
 		S = np.where((Flag==1.) & (EvtID==i))
@@ -71,29 +102,33 @@ for e in energies:
 		for counter, j in enumerate(X_S):
 			(Stheta, Sphi, Sr)=cart2sph(float(X_S[counter]),float(Y_S[counter]),float(Z_S[counter]))
 			theta_S.append(Stheta)
-			phi_S.append(Sphi)	
+			if phi >= 185.0:
+				Sphi = math.pi*2-abs(Sphi)
+			phi_S.append(abs(Sphi))	
 		
 		for counter, j in enumerate(X_C):
 			(Ctheta, Cphi, Cr)=cart2sph(float(X_C[counter]),float(Y_C[counter]),float(Z_C[counter]))
 			theta_C.append(Ctheta)
-			phi_C.append(Cphi)		
-
-		ScinPlot = TH2F("Scin_"+str(e), "Scin_"+str(e), int(100), float(np.mean(theta_S)-0.05), float(np.mean(theta_S)+0.05), int(100), float(np.mean(phi_S)-0.05),float(np.mean(phi_S)+0.05))
-		CherPlot = TH2F("Cher_"+str(e), "Cher_"+str(e), int(100),  float(np.mean(theta_S)-0.05), float(np.mean(theta_S)+0.05), int(100), float(np.mean(phi_S)-0.05),float(np.mean(phi_S)+0.05))
+			if phi >= 185.0:
+				Cphi = math.pi*2-abs(Cphi)
+			phi_C.append(abs(Cphi))		
+		
+		ScinPlot = TH2F("Scin_"+str(phi), "Scin_"+str(phi), int(100), float(np.mean(theta_S)-0.05), float(np.mean(theta_S)+0.05), int(100), float(np.mean(phi_S)-0.05),float(np.mean(phi_S)+0.05))
+		CherPlot = TH2F("Cher_"+str(phi), "Cher_"+str(phi), int(100),  float(np.mean(theta_S)-0.05), float(np.mean(theta_S)+0.05), int(100), float(np.mean(phi_S)-0.05),float(np.mean(phi_S)+0.05))
 		
 		n = len(theta_S)
 		array_theta_S = np.array(theta_S, 'd')
 		array_phi_S = np.array(phi_S, 'd')
 		array_E_s = np.array(E_s, 'd')
 		ScinGraph = TGraph2D(n, array_theta_S, array_phi_S, array_E_s)
-		ScinGraph.SetName("ScinGraph_"+str(e))
+		ScinGraph.SetName("ScinGraph_"+str(phi))
 
 		n = len(theta_C)
 		array_theta_C = np.array(theta_C, 'd')
 		array_phi_C = np.array(phi_C, 'd')
 		array_E_c = np.array(E_c, 'd')
 		CherGraph = TGraph2D(n, array_theta_C, array_phi_C, array_E_c)
-		CherGraph.SetName("CherGraph_"+str(e))
+		CherGraph.SetName("CherGraph_"+str(phi))
 
 		MeanTheta = 0.
 		MeanPhi = 0.
@@ -137,7 +172,6 @@ for e in energies:
 		MeanPhi = MeanPhi/sumphi
 		ThetaHist.Fill(MeanTheta)
 		PhiHist.Fill(MeanPhi)
-		percentages = circle.computerradi(E_s, theta_S, phi_S)
 		
 		MeanThetaC = MeanThetaC/sumthetaC
 		MeanPhiC = MeanPhiC/sumphiC
@@ -149,14 +183,13 @@ for e in energies:
 		ThetaHistCS.Fill(MeanThetaCS)
 		PhiHistCS.Fill(MeanPhiCS)	
 
-		percentages_array = percentages_array + np.array(percentages) 
-		print str(i)+" "+str(percentages)
 		if i<1:
 			gStyle.SetPalette(1)
 			ScinPlot.Write()
 			CherPlot.Write()
 			ScinGraph.Write()
 			CherGraph.Write()
+		
 		del ScinPlot
 		del CherPlot	
 		del ScinGraph
@@ -174,8 +207,6 @@ for e in energies:
 		#plt.plot(theta_C, phi_C,'.r',ms=1)
 		#plt.show()	
 
-	percentages_array = percentages_array/3000
-	print percentages_array
 	ThetaHist.Fit("gaus")
 	PhiHist.Fit("gaus")
 	ThetaHistC.Fit("gaus")
@@ -190,28 +221,16 @@ for e in energies:
 	ThetaHistCS.Write()
 	PhiHistCS.Write()
 
-	energies.append(float(e))
-	angrestheta.append(ThetaHistCS.GetFunction("gaus").GetParameter(2)*1000)
+	truephis.append(phi)
 	angresphi.append(PhiHistCS.GetFunction("gaus").GetParameter(2)*1000)
-	angrestheta_s.append(ThetaHist.GetFunction("gaus").GetParameter(2)*1000)
-	angresphi_s.append(PhiHist.GetFunction("gaus").GetParameter(2)*1000)
-	angrestheta_c.append(ThetaHistC.GetFunction("gaus").GetParameter(2)*1000)
-	angresphi_c.append(PhiHistC.GetFunction("gaus").GetParameter(2)*1000)
-		
-	print angrestheta, angresphi, energies
+	phis.append(PhiHistCS.GetFunction("gaus").GetParameter(1)*180./math.pi)
+
+	print "true phi "+str(phi)+" measured theta "+str(PhiHistCS.GetFunction("gaus").GetParameter(1)*180./math.pi)+" sigma phi "+str(PhiHistCS.GetFunction("gaus").GetParameter(2)*1000)
+
 gStyle.SetOptStat(111)
-ThetaGraph, PhiGraph = createangularesolutionplot.angresplot(energies, angrestheta, angresphi)
-ThetaGraph_s, PhiGraph_s = createangularesolutionplot.angresplot(energies, angrestheta_s, angresphi_s)
-ThetaGraph_c, PhiGraph_c = createangularesolutionplot.angresplot(energies, angrestheta_c, angresphi_c)
-ThetaGraph.SetName("ThetaGraph")
-ThetaGraph.Write()
-PhiGraph.SetName("PhiGraph")
-PhiGraph.Write()
-ThetaGraph_s.SetName("ThetaGraph_s")
-ThetaGraph_s.Write()
-PhiGraph_s.SetName("PhiGraph_s")
-PhiGraph_s.Write()
-ThetaGraph_c.SetName("ThetaGraph_c")
-ThetaGraph_c.Write()
-PhiGraph_c.SetName("PhiGraph_c")
-PhiGraph_c.Write()
+phi_linearity = TGraph(len(truephis), truephis, phis)
+phi_linearity.SetName("phis_linearity")
+phi_linearity.Write()
+sigma_linearity = TGraph(len(truephis), truephis, angresphi)
+sigma_linearity.SetName("sigma_linearity")
+sigma_linearity.Write()
