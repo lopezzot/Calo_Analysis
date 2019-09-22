@@ -234,8 +234,6 @@ for phi in phis:
 	PhiHistC.Write()
 	ThetaHistCS.Write()
 	PhiHistCS.Write()
-	testhist.Write()
-	scat.Write()
 	truephis.append(phi)
 	angresphi.append(PhiHistCS.GetFunction("gaus").GetParameter(2)*1000)
 	phis.append(PhiHistCS.GetFunction("gaus").GetParameter(1)*180./math.pi)
