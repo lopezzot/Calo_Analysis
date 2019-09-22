@@ -92,6 +92,7 @@ outputfile = TFile("ElectronAngleUniformity.root", "RECREATE")
 for theta in thetas:
 
 	file = "/home/software/Calo/results/Thetauniformity/Theta_"+str(theta)+".txt"	
+	file = "/home/lorenzo/Desktop/Calo/results/thetalinearity/Theta_"+str(theta)+".txt"	
 
 	if theta == thetas[0]:
 		truethetas = array('d')

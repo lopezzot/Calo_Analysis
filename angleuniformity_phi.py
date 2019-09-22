@@ -9,8 +9,11 @@ from array import array
 import math
 
 def cart2sph(x,y,z):
-	theta = np.arctan2(y,x)
-	phi = np.arctan2(z,np.sqrt(x**2 + y**2))
+	if y > 0.:
+		phi = np.arccos(x/np.sqrt(x**2+y**2))
+	else:
+		phi = 2*math.pi-np.arccos(x/np.sqrt(x**2+y**2))
+	theta = np.arctan2(z,np.sqrt(x**2 + y**2))
 	r = np.sqrt(x**2 + y**2 + z**2)
 	return phi, theta, r
 
@@ -31,7 +34,8 @@ phis=[5.0,
 145.0,
 155.0,
 165.0,
-175.0,
+175.0]
+'''
 185.0,
 195.0,
 205.0,
@@ -50,11 +54,14 @@ phis=[5.0,
 335.0,
 345.0,
 355.0]
+'''
+phis = [25.0]
 
 outputfile = TFile("ElectronAngleUniformity_phi.root", "RECREATE")
 for phi in phis:
 
-	file = "/home/software/Calo/results/Phiuniformity/Phi_"+str(phi)+".txt"	
+	file = "/home/software/Calo/results/philinearity/Phi_"+str(phi)+".txt"	
+	file = "/home/lorenzo/Desktop/Calo/results/philinearity/Phi_"+str(phi)+".txt"	
 
 	if phi == phis[0]:
 		truephis = array('d')
@@ -100,18 +107,25 @@ for phi in phis:
 		E_c=Edep[C]	
 
 		for counter, j in enumerate(X_S):
-			(Stheta, Sphi, Sr)=cart2sph(float(X_S[counter]),float(Y_S[counter]),float(Z_S[counter]))
+			(Sphi, Stheta, Sr)=cart2sph(float(X_S[counter]),float(Y_S[counter]),float(Z_S[counter]))
+			print float(X_S[counter]),float(Y_S[counter]),float(Z_S[counter]),Sphi
 			theta_S.append(Stheta)
+			'''
 			if phi >= 185.0:
 				Sphi = math.pi*2-abs(Sphi)
-			phi_S.append(abs(Sphi))	
+				phi_S.append(Sphi)
+			'''
+			phi_S.append(Sphi)	
 		
 		for counter, j in enumerate(X_C):
-			(Ctheta, Cphi, Cr)=cart2sph(float(X_C[counter]),float(Y_C[counter]),float(Z_C[counter]))
+			(Cphi, Ctheta, Cr)=cart2sph(float(X_C[counter]),float(Y_C[counter]),float(Z_C[counter]))
 			theta_C.append(Ctheta)
+			'''
 			if phi >= 185.0:
 				Cphi = math.pi*2-abs(Cphi)
-			phi_C.append(abs(Cphi))		
+				phi_C.append(Cphi)
+			'''			
+			phi_C.append(Cphi)		
 		
 		ScinPlot = TH2F("Scin_"+str(phi), "Scin_"+str(phi), int(100), float(np.mean(theta_S)-0.05), float(np.mean(theta_S)+0.05), int(100), float(np.mean(phi_S)-0.05),float(np.mean(phi_S)+0.05))
 		CherPlot = TH2F("Cher_"+str(phi), "Cher_"+str(phi), int(100),  float(np.mean(theta_S)-0.05), float(np.mean(theta_S)+0.05), int(100), float(np.mean(phi_S)-0.05),float(np.mean(phi_S)+0.05))
@@ -220,7 +234,8 @@ for phi in phis:
 	PhiHistC.Write()
 	ThetaHistCS.Write()
 	PhiHistCS.Write()
-
+	testhist.Write()
+	scat.Write()
 	truephis.append(phi)
 	angresphi.append(PhiHistCS.GetFunction("gaus").GetParameter(2)*1000)
 	phis.append(PhiHistCS.GetFunction("gaus").GetParameter(1)*180./math.pi)
