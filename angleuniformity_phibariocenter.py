@@ -13,6 +13,7 @@ def cart2sph(x,y,z):
 		phi = np.arccos(x/np.sqrt(x**2+y**2))
 	else:
 		phi = 2*math.pi-np.arccos(x/np.sqrt(x**2+y**2))
+	#phi = np.arctan2(y,x)
 	theta = np.arctan2(z,np.sqrt(x**2 + y**2))
 	r = np.sqrt(x**2 + y**2 + z**2)
 	return phi, theta, r
@@ -53,7 +54,7 @@ phis=[5.0,
 335.0,
 345.0,
 355.0]
-
+phis = [5.0]
 outputfile = TFile("ElectronAngleUniformity_phi.root", "RECREATE")
 for phi in phis:
 
