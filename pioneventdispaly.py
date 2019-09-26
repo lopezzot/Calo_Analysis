@@ -12,13 +12,13 @@ def cart2sph(x,y,z):
 	r = np.sqrt(x**2 + y**2 + z**2)
 	return phi, theta, r
 energies = [30,40,50,60,70,80,90,100,110,120,130,140,150]
-energies = [40]
-outputfile = TFile("ElectronAngle.root", "RECREATE")
+
+outputfile = TFile("PionAngle.root", "RECREATE")
 for e in energies:
 
 	#file = "/Users/lorenzo/Desktop/Git_IDEA_CALO_FIBER-build/B4a/Event0-0.txt"
 	#file = "Event-0-0-40GeV.txt"
-	file = "/home/software/Calo/results/Electron_ang_res_1_1/Electron_"+str(e)+".txt"	
+	file = "/home/software/Calo/results/energy_angular_pion/Pion_"+str(e)+".txt"	
 	#file = "/home/software/Calo/results/angular_res/Electron_"+str(e)+".txt"
 
 	if e == energies[0]:
@@ -40,14 +40,14 @@ for e in energies:
 	Slice = np.array([x.split('\t')[7] for x in open(file,"r").readlines()][1:],'d')
 	Tower = np.array([x.split('\t')[8] for x in open(file,"r").readlines()][1:],'d')	
 
-	ThetaHist = TH1F("Theta"+str(e), "Theta", 500, -0.01, 0.03)
-	PhiHist = TH1F("Phi"+str(e), "Phi", 500, -0.01, 0.03)	
+	ThetaHist = TH1F("Theta"+str(e), "Theta", 500, -0.03, 0.03)
+	PhiHist = TH1F("Phi"+str(e), "Phi", 500, -0.03, 0.03)	
 
-	ThetaHistC = TH1F("Theta_C"+str(e), "Theta", 500, -0.01, 0.03)
-	PhiHistC = TH1F("Phi_C"+str(e), "Phi", 500, -0.01, 0.03)	
+	ThetaHistC = TH1F("Theta_C"+str(e), "Theta", 500, -0.03, 0.03)
+	PhiHistC = TH1F("Phi_C"+str(e), "Phi", 500, -0.03, 0.03)	
 
-	ThetaHistCS = TH1F("Theta_CS"+str(e), "Theta", 500, -0.01, 0.03)
-	PhiHistCS = TH1F("Phi_CS"+str(e), "Phi", 500, -0.01, 0.03)	
+	ThetaHistCS = TH1F("Theta_CS"+str(e), "Theta", 500, -0.03, 0.03)
+	PhiHistCS = TH1F("Phi_CS"+str(e), "Phi", 500, -0.03, 0.03)	
 
 	percentages_array = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
 	percentages_array = np.array(percentages_array)

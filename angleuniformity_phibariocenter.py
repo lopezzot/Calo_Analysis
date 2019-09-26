@@ -54,12 +54,12 @@ phis=[5.0,
 335.0,
 345.0,
 355.0]
-phis = [5.0]
+
 outputfile = TFile("ElectronAngleUniformity_phi.root", "RECREATE")
 for phi in phis:
 
-	file = "/home/software/Calo/results/philinearity/Phi_"+str(phi)+".txt"	
-	file = "/home/lorenzo/Desktop/Calo/results/philinearity/Phi_"+str(phi)+".txt"	
+	file = "/home/software/Calo/results/Phiuniformity/Phi_"+str(phi)+".txt"	
+	#file = "/home/lorenzo/Desktop/Calo/results/philinearity/Phi_"+str(phi)+".txt"	
 
 	if phi == phis[0]:
 		truephis = array('d')

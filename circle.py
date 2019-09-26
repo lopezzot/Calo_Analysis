@@ -18,7 +18,7 @@ def computerradi(E_s, theta_S, phi_S):
 	MeanPhi = MeanPhi/sumphi
 	#end bariocenter
 
-	radii = [0.005, 0.01, 0.05, 0.1, 0.15]
+	radii = [0.001, 0.003, 0.005, 0.01, 0.05, 0.1, 0.15]
 	percentages = []
 	for radius in radii:
 		percentages.append(computerradius(E_s, theta_S, phi_S, MeanTheta, MeanPhi, radius))

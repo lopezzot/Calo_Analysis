@@ -17,7 +17,7 @@ if machine == "linux":
 		datapath = str("/home/lorenzo/Desktop/Calo/results/energylinearity/")
 if machine == "office":
 		datapath = str("/home/software/Calo/results/Energylinearity/")
-
+#usato Energylinearity per creare grafico uniformità risoluzione
 def energylinearity():
 	outputfile = "EMLinearityEnergyRes"
 	displayfile = TFile(outputfile+".root","RECREATE")

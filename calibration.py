@@ -1,5 +1,4 @@
 
-
 def calibscin(Barrel_VectorSignals):
 	"""function to apply calibrations at all the towers (right and left is the same)
 	for scin signals"""
