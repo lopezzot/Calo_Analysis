@@ -11,7 +11,7 @@ def jetdisplay():
 	outputfile = "Jetdisplay"
 	displayfile = TFile(outputfile+".root","RECREATE")
 
-	inputfile = "/home/software/Calo/results/hepmc_zll_FTFPBERTTRV/zll.root"
+	inputfile = "/home/software/Calo/results/hepmc_zjj_FTFPBERTTRV/zjj.root"
 	#inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	#inputfile = "/home/software/Calo/results/NewTowerScan4/Barrel_10.root"
 	#inputfile = "/home/software/Calo/results/SliceScan/Slice_10.root"
