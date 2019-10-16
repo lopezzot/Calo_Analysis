@@ -1,4 +1,5 @@
 import math
+import numpy
 
 def maptower(index, side):
 	"""Function to return tower angles (theta and phi) given index"""
@@ -26,6 +27,9 @@ def maptower(index, side):
 		phi = phi-180
     '''
 	if side == "right":
-		return theta, phi
+		#print theta+90., phi, -numpy.log(numpy.tan(((90.-theta)*math.pi/180./2.)))
+		return theta+90., phi, numpy.log(numpy.tan(((90.-theta)*math.pi/180./2.)))
 	if side == "left":
-		return -1*theta, phi
+		#print 90.-theta, phi, numpy.log(numpy.tan(((90.-theta)*math.pi/180./2.)))
+		return 90.-theta, phi, -numpy.log(numpy.tan(((90.-theta)*math.pi/180./2.)))
+
