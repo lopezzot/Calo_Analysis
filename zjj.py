@@ -47,18 +47,18 @@ def mergejet(jet1_scin, jet2_scin, jet1_cher, jet2_cher):
 		jet2 = fastjet.PseudoJet(jet2Px, jet2Py, jet2Pz, jet2E)
 
 	return jet1, jet2
-#used to calculate w mass including muon (i.e. muon is not subtracted from truth)
+
+#used to get z mass from jj events with fastjet
 def jetdisplay():
-	outputfile = "Jetdisplay"
+	outputfile = "zjj_output"
 	displayfile = TFile(outputfile+".root","RECREATE")
 
-	inputfile = "wwlj1k.root"
-
+	inputfile = "zjj.root"
+	
 	inputfile = TFile(inputfile)
 	print "Analyzing: "+str(inputfile)+" \n"
 	tree = TTree()
 	inputfile.GetObject("B4", tree)	
-
 	graph = TH1F("energyjet", "energyjet", 100, 0., 200.)
 	graph2 = TH1F("energycherjet", "energycherjet", 100, 0., 200.)
 	graph3 = TH1F("energyscinjet", "energyscinjet", 100, 0., 200.)
@@ -69,7 +69,7 @@ def jetdisplay():
 	graph6 = TH1F("energyscin", "energyscin", 100, 0., 200.)
 
 	#loop over events
-	for Event in range(tree.GetEntries()):	
+	for Event in range(int(1000)):	
 
 		tree.GetEntry(Event)	
 
@@ -105,7 +105,7 @@ def jetdisplay():
 				#ROOTHistograms.create_eventdisplay_scin("Jet", BarrelR_VectorSignals, BarrelL_VectorSignals, "signal"+str(Event)) 
 				#ROOTHistograms.create_eventdisplay_cher("Jet", BarrelR_VectorSignalsCher, BarrelL_VectorSignalsCher, "signal"+str(Event))
 		
-			#event displays with energy (GeV)	
+			#event displays with energy (GeV)
 			if Event<10:
 					displayfile.cd()
 					ROOTHistograms.create_eventdisplay_scin("Jet_energy", Calib_BarrelR_VectorSignals, Calib_BarrelL_VectorSignals, "energy"+str(Event), threshold) 
@@ -153,7 +153,6 @@ def jetdisplay():
 					inputparticles_cher.append(fastjet.PseudoJet(towercher.Px(), towercher.Py(), towercher.Pz(), towercher.E()))
 
 			jet_def = fastjet.JetDefinition(fastjet.ee_genkt_algorithm, 2*math.pi, 1.)
-			
 			clust_seq = fastjet.ClusterSequence(inputparticles_scin, jet_def)	
 
 			print "Event: "+str(Event)+" energy (GeV): "+str(energy)+" n-jets: "+str(len(clust_seq.exclusive_jets(int(2))))+" truth: "+str(len(inputparticles_scin))
@@ -167,21 +166,34 @@ def jetdisplay():
 			jet2_cher = fastjet.sorted_by_E(clust_seq_cher.exclusive_jets(int(2)))[1]
 
 			print "DeltaR jet1_scin: "+str(jet1_scin.delta_R(jet1_cher))+" "+str(jet1_scin.delta_R(jet2_cher))
-
+			
+			jet1, jet2 = mergejet(jet1_scin, jet2_scin, jet1_cher, jet2_cher)
+			'''
 			c = 0.34 #chi factor
 
-			jet1, jet2 = mergejet(jet1_scin, jet2_scin, jet1_cher, jet2_cher)
+			#merging cluster scin and cher
+			jet1Px = (jet1_scin.px()-c*jet1_cher.px())/(1-c)
+			jet1Py = (jet1_scin.py()-c*jet1_cher.py())/(1-c)
+			jet1Pz = (jet1_scin.pz()-c*jet1_cher.pz())/(1-c)
+			jet1E = (jet1_scin.e()-c*jet1_cher.e())/(1.-c)
+			jet1 = fastjet.PseudoJet(jet1Px, jet1Py, jet1Pz, jet1E)
 
+			jet2Px = (jet2_scin.px()-c*jet2_cher.px())/(1-c)
+			jet2Py = (jet2_scin.py()-c*jet2_cher.py())/(1-c)
+			jet2Pz = (jet2_scin.pz()-c*jet2_cher.pz())/(1-c)
+			jet2E = (jet2_scin.e()-c*jet2_cher.e())/(1.-c)
+			jet2 = fastjet.PseudoJet(jet2Px, jet2Py, jet2Pz, jet2E)
+			'''
 			graph.Fill(jet1.e()+jet2.e())
 			graph3.Fill(jet1_scin.e()+jet2_scin.e())
 			graph2.Fill(jet1_cher.e()+jet2_cher.e())
 			j = jet1+jet2
 			graphmass.Fill(j.m())
-			
+			c = 0.34
 			graph4.Fill((energy-c*energycher)/(1.-c))
 			graph5.Fill(energycher)
 			graph6.Fill(energy)
-	
+			
 	graph.Write()
 	graph2.Write()
 	graph3.Write()
@@ -190,4 +202,20 @@ def jetdisplay():
 	graph6.Write()
 	graphmass.Write()
 	
+'''			
+for jet in clust_seq.inclusive_jets():
+	print "***********"
+	print jet.e(), jet.eta(), jet.phi()
+	for cjet in jet.constituents():
+		print cjet.e(), cjet.eta(), cjet.phi()
+'''
+'''
+if len(clust_seq.inclusive_jets()) == 3:
+	displayfile.cd()
+	ROOTHistograms.create_eventdisplay_scin("Jet_energy", Calib_BarrelR_VectorSignals, Calib_BarrelL_VectorSignals, "energy"+str(Event), threshold) 
+	ROOTHistograms.create_eventdisplay_cher("Jet_energy", Calib_BarrelR_VectorSignalsCher, Calib_BarrelL_VectorSignalsCher, "energy"+str(Event), threshold)	
+	print "*****"
+	for jet in clust_seq.inclusive_jets():
+		print jet.e(), jet.eta(), jet.phi()
+'''
 jetdisplay()
