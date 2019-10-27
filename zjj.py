@@ -69,7 +69,7 @@ def jetdisplay():
 	graph6 = TH1F("energyscin", "energyscin", 100, 0., 200.)
 
 	#loop over events
-	for Event in range(int(1000)):	
+	for Event in range(int(100)):	
 
 		tree.GetEntry(Event)	
 

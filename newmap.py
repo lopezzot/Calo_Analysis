@@ -1,6 +1,7 @@
 import math
 import numpy
 
+
 def maptower(index, side):
 	"""Function to return tower angles (theta and phi) given index"""
 	NbOfBarrel=40
