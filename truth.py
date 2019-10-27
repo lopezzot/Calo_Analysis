@@ -153,12 +153,12 @@ def jetdisplay():
 					deltaR=abs(towerscin.DeltaR(muon))
 					if deltaR<deltamumin:
 						deltamumin=deltaR 
-						if energy_scin > threshold:
-							if deltamumin<0.1:
-								print " deltamumin ", deltamumin
-							if deltamumin>0.1:
-								inputparticles_scin.append(fastjet.PseudoJet(towerscin.Px(), towerscin.Py(), towerscin.Pz(), towerscin.E()))
-								inputparticles_cher.append(fastjet.PseudoJet(towercher.Px(), towercher.Py(), towercher.Pz(), towercher.E()))
+				if energy_scin > threshold:
+					if deltamumin<0.1:
+						print " deltamumin ", deltamumin
+					if deltamumin>0.1:
+						inputparticles_scin.append(fastjet.PseudoJet(towerscin.Px(), towerscin.Py(), towerscin.Pz(), towerscin.E()))
+						inputparticles_cher.append(fastjet.PseudoJet(towercher.Px(), towercher.Py(), towercher.Pz(), towercher.E()))
 			
 			#left part	
 			for towerindex in range(75*36):
@@ -178,12 +178,13 @@ def jetdisplay():
 					deltaR=abs(towerscin.DeltaR(muon))
 					if deltaR<deltamumin:
 						deltamumin=deltaR 
-						if energy_scin > threshold:
-							if deltamumin<0.1:
-								print " deltamumin ", deltamumin
-							if deltamumin>0.1:
-								inputparticles_scin.append(fastjet.PseudoJet(towerscin.Px(), towerscin.Py(), towerscin.Pz(), towerscin.E()))
-								inputparticles_cher.append(fastjet.PseudoJet(towercher.Px(), towercher.Py(), towercher.Pz(), towercher.E()))
+				if energy_scin > threshold:
+					if deltamumin<0.1:
+						print " deltamumin ", deltamumin
+					if deltamumin>0.1:
+						inputparticles_scin.append(fastjet.PseudoJet(towerscin.Px(), towerscin.Py(), towerscin.Pz(), towerscin.E()))
+						inputparticles_cher.append(fastjet.PseudoJet(towercher.Px(), towercher.Py(), towercher.Pz(), towercher.E()))
+		
 		print "len: ",len(inputparticles_scin)
 		print "lencher: ",len(inputparticles_cher)
 

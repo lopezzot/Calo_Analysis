@@ -53,7 +53,7 @@ def jetdisplay():
 	outputfile = "zjj_output"
 	displayfile = TFile(outputfile+".root","RECREATE")
 
-	inputfile = "zjj.root"
+	inputfile = "zjj30k.root"
 	
 	inputfile = TFile(inputfile)
 	print "Analyzing: "+str(inputfile)+" \n"
