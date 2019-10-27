@@ -28,8 +28,8 @@ def maptower(index, side):
     '''
 	if side == "right":
 		#print theta+90., phi, -numpy.log(numpy.tan(((90.-theta)*math.pi/180./2.)))
-		return theta+90., phi, numpy.log(numpy.tan(((90.-theta)*math.pi/180./2.)))
+		return theta+90., phi, -numpy.log(numpy.tan(((90.-theta)*math.pi/180./2.)))
 	if side == "left":
 		#print 90.-theta, phi, numpy.log(numpy.tan(((90.-theta)*math.pi/180./2.)))
-		return 90.-theta, phi, -numpy.log(numpy.tan(((90.-theta)*math.pi/180./2.)))
+		return 90.-theta, phi, numpy.log(numpy.tan(((90.-theta)*math.pi/180./2.)))
 

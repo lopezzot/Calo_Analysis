@@ -41,9 +41,14 @@ def recenergy():
 	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
 	t = [10,20, 40, 60, 80,90, 100, 130, 150]
 	t = [100]
+<<<<<<< HEAD
 	inputfiles = ["/home/software/Calo/results/pionenergyscan_QGSPBICHP/Pion_"+str(i)+".root" for i in t]
 	inputfiles = ["/home/lorenzo/Desktop/Calo/results/pionenergyscan_FTFPBERTTRV/Pion_"+str(i)+".root" for i in t]
 	
+=======
+	inputfiles = ["/home/software/Calo/results/energycont_2p0m/Pion_"+str(i)+".root" for i in t]
+
+>>>>>>> 4d90396e7a73b29c293a6b97a4eb73e1b936660e
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
 		print "Analyzing: "+str(inputfile)+" \n"
