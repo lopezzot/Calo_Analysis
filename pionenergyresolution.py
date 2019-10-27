@@ -34,15 +34,16 @@ def recenergy():
 
 	energies = array('d',[10,20,30,40,50,60,70,80,90,100,110,120,130,140,150])
 	energies = array('d', [10,20,40,60, 80,90, 100,130, 150])
-	energies = array('d', [40])
+	energies = array('d', [100])
 	sqrtenergies = array('d',[1/(x**0.5) for x in energies])
 	scin_sqrtenergies = array('d')
 	cher_sqrtenergies = array('d')
 	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
 	t = [10,20, 40, 60, 80,90, 100, 130, 150]
-	t = [40]
+	t = [100]
 	inputfiles = ["/home/software/Calo/results/pionenergyscan_QGSPBICHP/Pion_"+str(i)+".root" for i in t]
-
+	inputfiles = ["/home/lorenzo/Desktop/Calo/results/pionenergyscan_FTFPBERTTRV/Pion_"+str(i)+".root" for i in t]
+	
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
 		print "Analyzing: "+str(inputfile)+" \n"
@@ -54,7 +55,7 @@ def recenergy():
 		RecEnergyHist = TH1F("RecEnergy_",str(counter+1)+"_Energy", 500, 0., 200.)
 		
 		#Signalscinhist = TH1F("scintot_", str(counter+1)+"_scin", 3000, 0., 30000)
-		#EnergyHist = TH1F("Energy_",str(counter+1)+"_Energy", 500, 0., 200.)
+		EnergyHist = TH1F("Energy_",str(counter+1)+"_Energy", 500, 0., 200.)
 		
 		scatterplot = TH2F("scatterplot_", str(counter+1), int(800), 0., 200., int(800), 0., 200.)
 
@@ -81,8 +82,8 @@ def recenergy():
 			#totalsignalscin = sum(BarrelR_VectorSignals)+sum(BarrelL_VectorSignals)
 			#Signalscinhist.Fill(totalsignalscin)
 
-			#energytot = (sum(VectorR)+sum(VectorL))/1000
-			#EnergyHist.Fill(energytot)
+			energytot = (sum(VectorR)+sum(VectorL))/1000
+			EnergyHist.Fill(energytot)
 			
 			#apply calibrations
 			Calib_BarrelL_VectorSignals = calibration.calibscin(BarrelL_VectorSignals)
@@ -113,7 +114,7 @@ def recenergy():
 		ScinEnergyHist.Write()
 		CherEnergyHist.Write()
 		#Signalscinhist.Write()
-		#EnergyHist.Write()
+		EnergyHist.Write()
 		scatterplot.Write()
 		#scin_sqrtenergies.append(1./(ScinEnergyHist.GetFunction("gaus").GetParameter(1)**0.5))
 		#cher_sqrtenergies.append(1./(CherEnergyHist.GetFunction("gaus").GetParameter(1)**0.5))
