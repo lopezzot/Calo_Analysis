@@ -44,7 +44,7 @@ def recenergy():
 	#inputfiles = ["/home/software/Calo/results/energycont_2p0m/Pion_"+str(i)+".root" for i in t]
 
 	inputfiles = ["/home/software/Calo/results/pionenergyscan_QGSPBICHP/Pion_"+str(i)+".root" for i in t]
-	inputfiles = ["/home/lorenzo/Desktop/Calo/results/pionenergyscan_FTFPBERTTRV/Pion_"+str(i)+".root" for i in t]
+	inputfiles = ["/home/lorenzo/Desktop/Calo/newresults/FTFPBERTTRV/Pion_"+str(i)+"_FTFPBERTTRV_office.root" for i in t]
 
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)

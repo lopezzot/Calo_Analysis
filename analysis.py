@@ -79,6 +79,8 @@ def towercalibration():
 	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
 	inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	#inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
+	inputfiles = ["/home/lorenzo/Desktop/Calo/results/SliceScan/Slice_"+str(i)+".root" for i in range(1,36)]
+	inputfiles = ["/home/lorenzo/Desktop/Calo/results/ScanInsideTower/Step_"+str(i)+".root" for i in range(0,11)]
 	
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
@@ -141,8 +143,8 @@ def towercalibration():
 			if Event < 1:
 				print "Max found at: "+str(list(BarrelR_VectorSignals).index(signalscin))+str(list(BarrelR_VectorSignalsCher).index(signalcher))+str(list(VectorR).index(energytower*1000))+" for file "+str(counter+1) #to check tower mostly hitten is the correct one
 				displayfile.cd()
-				ROOTHistograms.create_eventdisplay_scin(PrimaryParticleName, BarrelR_VectorSignals, BarrelL_VectorSignals, str(counter)) 
-				ROOTHistograms.create_eventdisplay_cher(PrimaryParticleName, BarrelR_VectorSignalsCher, BarrelL_VectorSignalsCher, str(counter))
+				ROOTHistograms.create_eventdisplay_scin(PrimaryParticleName, BarrelR_VectorSignals, BarrelL_VectorSignals, str(counter), 0.0) 
+				ROOTHistograms.create_eventdisplay_cher(PrimaryParticleName, BarrelR_VectorSignalsCher, BarrelL_VectorSignalsCher, str(counter), 0.0)
 
 		print np.mean(energytot), np.mean(scinsignaltot), np.mean(chersignaltot)
 		displayfile.cd()
