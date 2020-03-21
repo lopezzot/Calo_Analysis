@@ -8,18 +8,8 @@ import newmap
 import numpy as np
 import calibration
 
-machine = raw_input("On what machine running? (mac, linux, office) ")
-if machine == "mac":
-		path = str("/Users/lorenzo/cernbox/work/Git-to-Mac/AnalysisIDEACalorimeter/")
-		datapath = str("/Users/lorenzo/cernbox/work/Git-to-Mac/IDEA_Calorimeter_Union_data/")
-if machine == "linux":
-		path = str("/home/lorenzo/cernbox/work/Git-to-Mac/AnalysisIDEACalorimeter/")
-		datapath = str("/home/lorenzo/Desktop/Calo/results/newenergyscan3/")
-if machine == "office":
-		datapath = str("/home/software/Calo/results/pionenergyscan/")
-
-def recenergy():
-	outputfile = "PionEnergyRes"
+def recenergy(name):
+	outputfile = "PionEnergyRes"+str(name)
 	displayfile = TFile(outputfile+".root","RECREATE")
 
 	MeanEnergyScin = array('d')
@@ -34,17 +24,19 @@ def recenergy():
 
 	energies = array('d',[10,20,30,40,50,60,70,80,90,100,110,120,130,140,150])
 	energies = array('d', [10,20,40,60, 80,90, 100,130, 150])
-	energies = array('d', [100])
+	energies = array('d', [10,30,50,70,90,100])
 	sqrtenergies = array('d',[1/(x**0.5) for x in energies])
 	scin_sqrtenergies = array('d')
 	cher_sqrtenergies = array('d')
 	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
-	t = [10,20, 40, 60, 80,90, 100, 130, 150]
-	t = [100]
+	t = [10,30,50,70,90,"100_"+str(name)+"_office"]#, 130, 150]
+	t = ["100_"+str(name)+"_office"]#, 130, 150]
+	#t = [100]
 	#inputfiles = ["/home/software/Calo/results/energycont_2p0m/Pion_"+str(i)+".root" for i in t]
 
-	inputfiles = ["/home/software/Calo/results/pionenergyscan_QGSPBICHP/Pion_"+str(i)+".root" for i in t]
-	inputfiles = ["/home/lorenzo/Desktop/Calo/newresults/FTFPBERTTRV/Pion_"+str(i)+"_FTFPBERTTRV_office.root" for i in t]
+	#inputfiles = ["/home/software/Calo/results/pionenergyscan_QGSPBICHP/Pion_"+str(i)+".root" for i in t]
+	#inputfiles = ["/home/lorenzo/Desktop/Calo/newresults/FTFPBERTTRV/Pion_"+str(i)+"_FTFPBERTTRV_office.root" for i in t]
+	inputfiles = ["/Users/lorenzo/Desktop/ToPC/newresults/"+str(name)+"/Pion_"+str(i)+".root" for i in t]
 
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
@@ -58,13 +50,18 @@ def recenergy():
 		
 		#Signalscinhist = TH1F("scintot_", str(counter+1)+"_scin", 3000, 0., 30000)
 		EnergyHist = TH1F("Energy_",str(counter+1)+"_Energy", 500, 0., 200.)
-		
+		LeakageHist = TH1F("Leak_",str(counter+1)+"_Leak", 500, 0., 10.)
+		NeutrinoLeakageHist = TH1F("NeutrinoNeutrinoLeak_",str(counter+1)+"_Leak", 500, 0., 10.)
+		TotalLeakageHist = TH1F("TotalLeak_",str(counter+1)+"_Leak", 500, 0., 10.)
+		ChiHist = TH1F("Chi_",str(counter+1)+"_Chi", 100, 0., 2.)
 		scatterplot = TH2F("scatterplot_", str(counter+1), int(800), 0., 200., int(800), 0., 200.)
 
 		#loop over events
-		for Event in range(int(tree.GetEntries())):	
+		for Event in range(10000):	
 
 			tree.GetEntry(Event)	
+			if Event%100==0:
+				print Event 
 
 			#Set values of the tree
 			PrimaryParticleName = tree.PrimaryParticleName # MC truth: primary particle Geant4 name
@@ -80,32 +77,42 @@ def recenergy():
 			BarrelL_VectorSignalsCher = tree.VectorSignalsCherL 	
 			VectorR = tree.VectorR
 			VectorL = tree.VectorL
+			Leak = tree.leakage
+			NeutrinoLeak = tree.neutrinoleakage
 			
 			#totalsignalscin = sum(BarrelR_VectorSignals)+sum(BarrelL_VectorSignals)
 			#Signalscinhist.Fill(totalsignalscin)
 
 			energytot = (sum(VectorR)+sum(VectorL))/1000
 			EnergyHist.Fill(energytot)
-			
-			#apply calibrations
-			Calib_BarrelL_VectorSignals = calibration.calibscin(BarrelL_VectorSignals)
-			Calib_BarrelR_VectorSignals = calibration.calibscin(BarrelR_VectorSignals)
-			Calib_BarrelL_VectorSignalsCher = calibration.calibcher(BarrelL_VectorSignalsCher)
-			Calib_BarrelR_VectorSignalsCher = calibration.calibcher(BarrelR_VectorSignalsCher)
-			#end of calibrations
+			LeakageHist.Fill(Leak/1000.)
+			NeutrinoLeakageHist.Fill(NeutrinoLeak/1000.)
+			TotalLeakageHist.Fill(Leak/1000.+NeutrinoLeak/1000.)
 
-			energyscin = sum(Calib_BarrelR_VectorSignals)+sum(Calib_BarrelL_VectorSignals)
-			energycher = sum(Calib_BarrelR_VectorSignalsCher)+sum(Calib_BarrelL_VectorSignalsCher)
 
-			ScinEnergyHist.Fill(energyscin)
-			#sigmascin = 0.15*(energyscin**0.5)+0.012*energyscin
-			CherEnergyHist.Fill(energycher)
-			#sigmacher = 0.18*(energycher**0.5)+0.0045*energycher
-			chi = 0.29
-			RecEnergyHist.Fill((energyscin - chi*energycher)/(1-chi))
+			if (Leak/1000.+NeutrinoLeak/1000.)<3.0:
+				#apply calibrations
+				Calib_BarrelL_VectorSignals = calibration.calibscin(BarrelL_VectorSignals)
+				Calib_BarrelR_VectorSignals = calibration.calibscin(BarrelR_VectorSignals)
+				Calib_BarrelL_VectorSignalsCher = calibration.calibcher(BarrelL_VectorSignalsCher)
+				Calib_BarrelR_VectorSignalsCher = calibration.calibcher(BarrelR_VectorSignalsCher)
+				#end of calibrations	
 
-			scatterplot.Fill(energyscin, energycher)
-		
+				energyscin = sum(Calib_BarrelR_VectorSignals)+sum(Calib_BarrelL_VectorSignals)
+				energycher = sum(Calib_BarrelR_VectorSignalsCher)+sum(Calib_BarrelL_VectorSignalsCher)	
+
+				ScinEnergyHist.Fill(energyscin)
+				#sigmascin = 0.15*(energyscin**0.5)+0.012*energyscin
+				CherEnergyHist.Fill(energycher)
+				#sigmacher = 0.18*(energycher**0.5)+0.0045*energycher
+				chi = 0.29
+				RecEnergyHist.Fill((energyscin - chi*energycher)/(1-chi))	
+
+				scatterplot.Fill(energyscin, energycher)
+
+				newchi = (energyscin-(100.-(Leak/1000.+NeutrinoLeak/1000.)))/(energycher-(100.-(Leak/1000.+NeutrinoLeak/1000.)))
+		        ChiHist.Fill(newchi)
+
 		print energies[counter], ScinEnergyHist.GetMean(), CherEnergyHist.GetMean(), RecEnergyHist.GetMean()
 		displayfile.cd()
 		gStyle.SetOptStat(111)
@@ -118,6 +125,10 @@ def recenergy():
 		#Signalscinhist.Write()
 		EnergyHist.Write()
 		scatterplot.Write()
+		LeakageHist.Write()
+		NeutrinoLeakageHist.Write()
+		TotalLeakageHist.Write()
+		ChiHist.Write()
 		#scin_sqrtenergies.append(1./(ScinEnergyHist.GetFunction("gaus").GetParameter(1)**0.5))
 		#cher_sqrtenergies.append(1./(CherEnergyHist.GetFunction("gaus").GetParameter(1)**0.5))
 		MeanEnergyScin.append(ScinEnergyHist.GetMean())
@@ -175,5 +186,6 @@ def recenergy():
 	Linearities.SetName("Linearities")
 	Linearities.Write()
 	'''
-
-recenergy()
+names = ["FTFPBERT"]#, "FTFPBERT", "QGSPBERT", "QBBC"]
+for name in names:
+	recenergy(name)
