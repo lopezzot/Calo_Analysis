@@ -78,9 +78,10 @@ def towercalibration():
 
 	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
 	inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
+	inputfiles = ["/home/software/Calo/results/newresults/barrel1/Barrel_"+str(i)+".root" for i in range(1,76)]
 	#inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
-	inputfiles = ["/home/lorenzo/Desktop/Calo/results/SliceScan/Slice_"+str(i)+".root" for i in range(1,36)]
-	inputfiles = ["/home/lorenzo/Desktop/Calo/results/ScanInsideTower/Step_"+str(i)+".root" for i in range(0,11)]
+	#inputfiles = ["/home/lorenzo/Desktop/Calo/results/SliceScan/Slice_"+str(i)+".root" for i in range(1,36)]
+	#inputfiles = ["/home/lorenzo/Desktop/Calo/results/ScanInsideTower/Step_"+str(i)+".root" for i in range(0,11)]
 	
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
