@@ -7,6 +7,7 @@ import os
 import newmap
 import numpy as np
 import calibration
+import calibration2
 
 machine = raw_input("On what machine running? (mac, linux, office) ")
 if machine == "mac":
@@ -17,7 +18,8 @@ if machine == "linux":
 		datapath = str("/home/lorenzo/Desktop/Calo/results/energylinearity/")
 if machine == "office":
 		datapath = str("/home/software/Calo/results/Energylinearity/")
-#usato Energylinearity per creare grafico uniformità risoluzione
+
+# 
 def energylinearity():
 	outputfile = "EMLinearityEnergyRes"
 	displayfile = TFile(outputfile+".root","RECREATE")
@@ -30,6 +32,7 @@ def energylinearity():
 	resolution = array('d')
 
 	inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
+	inputfiles = ["/home/software/Calo/results/newresults/barrel1/Barrel_"+str(i)+".root" for i in range(1,76)]
 	#inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	#inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	
@@ -69,10 +72,10 @@ def energylinearity():
 			VectorL = tree.VectorL
 			
 			#apply calibrations
-			Calib_BarrelL_VectorSignals = calibration.calibscin(BarrelL_VectorSignals)
-			Calib_BarrelR_VectorSignals = calibration.calibscin(BarrelR_VectorSignals)
-			Calib_BarrelL_VectorSignalsCher = calibration.calibcher(BarrelL_VectorSignalsCher)
-			Calib_BarrelR_VectorSignalsCher = calibration.calibcher(BarrelR_VectorSignalsCher)
+			Calib_BarrelL_VectorSignals = calibration2.calibscin(BarrelL_VectorSignals)
+			Calib_BarrelR_VectorSignals = calibration2.calibscin(BarrelR_VectorSignals)
+			Calib_BarrelL_VectorSignalsCher = calibration2.calibcher(BarrelL_VectorSignalsCher)
+			Calib_BarrelR_VectorSignalsCher = calibration2.calibcher(BarrelR_VectorSignalsCher)
 			#end of calibrations
 			
 			energyscin = sum(Calib_BarrelR_VectorSignals)+sum(Calib_BarrelL_VectorSignals)
