@@ -7,11 +7,21 @@ import os
 import newmap
 import numpy as np
 import calibration
+#import calibration2 as calibration
 
 def recenergy(name):
 	outputfile = "PionEnergyRes"+str(name)
 	displayfile = TFile(outputfile+".root","RECREATE")
-
+	
+	if name == "FTFPBERT":
+		chi = 0.3
+	if name == "FTFPBERTTRV":
+		chi = 0.3
+	if name == "QGSPBERT":
+		chi = 0.3
+	if name == "QBBC":
+		chi = 0.3
+	
 	MeanEnergyScin = array('d')
 	MeanEnergyCher = array('d')
 	Energy = array('d')
@@ -28,15 +38,15 @@ def recenergy(name):
 	sqrtenergies = array('d',[1/(x**0.5) for x in energies])
 	scin_sqrtenergies = array('d')
 	cher_sqrtenergies = array('d')
-	#inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
-	t = [10,30,50,70,90,"100_"+str(name)+"_office"]#, 130, 150]
-	t = ["100_"+str(name)+"_office"]#, 130, 150]
-	#t = [100]
-	#inputfiles = ["/home/software/Calo/results/energycont_2p0m/Pion_"+str(i)+".root" for i in t]
 
+	t = [10,30,50,70,100,140,150]
+	t = [100]
+	energies = array('d',t)
+	#inputfiles = ["/home/software/Calo/results/energycont_2p0m/Pion_"+str(i)+".root" for i in t]
 	#inputfiles = ["/home/software/Calo/results/pionenergyscan_QGSPBICHP/Pion_"+str(i)+".root" for i in t]
 	#inputfiles = ["/home/lorenzo/Desktop/Calo/newresults/FTFPBERTTRV/Pion_"+str(i)+"_FTFPBERTTRV_office.root" for i in t]
-	inputfiles = ["/Users/lorenzo/Desktop/ToPC/newresults/"+str(name)+"/Pion_"+str(i)+".root" for i in t]
+	#inputfiles = ["/Users/lorenzo/Desktop/ToPC/newresults/"+str(name)+"/Pion_"+str(i)+".root" for i in t]
+	inputfiles = ["/home/lorenzo/Calo/results/Pion_25_3_2020/"+str(name)+""+"/Pion_"+str(i)+".root" for i in t]
 
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
@@ -44,23 +54,24 @@ def recenergy(name):
 		tree = TTree()
 		inputfile.GetObject("B4", tree)	
 
-		ScinEnergyHist = TH1F("scinenergy_", str(counter+1)+"_scin", 500, 0., 200.)
-		CherEnergyHist = TH1F("cherenergy_", str(counter+1)+"_cher", 500, 0., 200.)	
-		RecEnergyHist = TH1F("RecEnergy_",str(counter+1)+"_Energy", 500, 0., 200.)
+		ScinEnergyHist = TH1F("scinenergy_"+str(t[counter]), str(t[counter])+"_scin", 400, 0., 200.)
+		CherEnergyHist = TH1F("cherenergy_"+str(t[counter]), str(t[counter])+"_cher", 400, 0., 200.)	
+		RecEnergyHist = TH1F("RecEnergy_"+str(t[counter]),str(t[counter])+"_Energy", 400, 0., 200.)
 		
 		#Signalscinhist = TH1F("scintot_", str(counter+1)+"_scin", 3000, 0., 30000)
-		EnergyHist = TH1F("Energy_",str(counter+1)+"_Energy", 500, 0., 200.)
-		LeakageHist = TH1F("Leak_",str(counter+1)+"_Leak", 500, 0., 10.)
-		NeutrinoLeakageHist = TH1F("NeutrinoNeutrinoLeak_",str(counter+1)+"_Leak", 500, 0., 10.)
-		TotalLeakageHist = TH1F("TotalLeak_",str(counter+1)+"_Leak", 500, 0., 10.)
-		ChiHist = TH1F("Chi_",str(counter+1)+"_Chi", 100, 0., 2.)
-		scatterplot = TH2F("scatterplot_", str(counter+1), int(800), 0., 200., int(800), 0., 200.)
+		EnergyHist = TH1F("Energy_"+str(t[counter]),str(t[counter])+"_Energy", 400, 0., 200.)
+		LeakageHist = TH1F("Leak_"+str(t[counter]),str(t[counter])+"_Leak", 200, 0., 100.)
+		NeutrinoLeakageHist = TH1F("NeutrinoNeutrinoLeak_"+str(t[counter]),str(t[counter])+"_Leak", 200, 0., 100.)
+		TotalLeakageHist = TH1F("TotalLeak_"+str(t[counter]),str(t[counter])+"_Leak", 200, 0., 100.)
+		ChiHist = TH1F("Chi_"+str(t[counter]),str(t[counter])+"_Chi", 40, 0., 2.)
+		scatterplot = TH2F("scatterplot_"+str(t[counter]), str(t[counter]), int(400), 0., 200., int(400), 0., 200.)
+		EnergyContHist = TH1F("EnergyCont_"+str(t[counter]),str(t[counter])+"_EnergyCont", 400, 0., 200.)
 
 		#loop over events
-		for Event in range(10000):	
+		for Event in range(50000):	
 
 			tree.GetEntry(Event)	
-			if Event%100==0:
+			if Event%1000==0:
 				print Event 
 
 			#Set values of the tree
@@ -97,22 +108,18 @@ def recenergy(name):
 				Calib_BarrelL_VectorSignalsCher = calibration.calibcher(BarrelL_VectorSignalsCher)
 				Calib_BarrelR_VectorSignalsCher = calibration.calibcher(BarrelR_VectorSignalsCher)
 				#end of calibrations	
-
 				energyscin = sum(Calib_BarrelR_VectorSignals)+sum(Calib_BarrelL_VectorSignals)
 				energycher = sum(Calib_BarrelR_VectorSignalsCher)+sum(Calib_BarrelL_VectorSignalsCher)	
-
+				e_c = float(t[counter])-(Leak/1000.+NeutrinoLeak/1000.)
+				EnergyContHist.Fill(e_c)
 				ScinEnergyHist.Fill(energyscin)
-				#sigmascin = 0.15*(energyscin**0.5)+0.012*energyscin
 				CherEnergyHist.Fill(energycher)
-				#sigmacher = 0.18*(energycher**0.5)+0.0045*energycher
-				chi = 0.29
-				RecEnergyHist.Fill((energyscin - chi*energycher)/(1-chi))	
-
 				scatterplot.Fill(energyscin, energycher)
-
-				newchi = (energyscin-(100.-(Leak/1000.+NeutrinoLeak/1000.)))/(energycher-(100.-(Leak/1000.+NeutrinoLeak/1000.)))
-		        ChiHist.Fill(newchi)
-
+				chi = 0.29
+				newchi = (energyscin-e_c)/(energycher-e_c)
+				ChiHist.Fill(newchi)			
+				RecEnergyHist.Fill((energyscin - chi*energycher)/(1.- chi))	
+				
 		print energies[counter], ScinEnergyHist.GetMean(), CherEnergyHist.GetMean(), RecEnergyHist.GetMean()
 		displayfile.cd()
 		gStyle.SetOptStat(111)
@@ -124,6 +131,8 @@ def recenergy(name):
 		CherEnergyHist.Write()
 		#Signalscinhist.Write()
 		EnergyHist.Write()
+		EnergyContHist.Write()
+		e_cont = EnergyContHist.GetMean()
 		scatterplot.Write()
 		LeakageHist.Write()
 		NeutrinoLeakageHist.Write()
@@ -133,12 +142,12 @@ def recenergy(name):
 		#cher_sqrtenergies.append(1./(CherEnergyHist.GetFunction("gaus").GetParameter(1)**0.5))
 		MeanEnergyScin.append(ScinEnergyHist.GetMean())
 		MeanEnergyCher.append(CherEnergyHist.GetMean())
-		resolution.append(RecEnergyHist.GetFunction("gaus").GetParameter(2)/RecEnergyHist.GetFunction("gaus").GetParameter(1))
-		energyfractionscin.append(ScinEnergyHist.GetMean()/energies[counter])
-		energyfractioncher.append(CherEnergyHist.GetMean()/energies[counter])
-		energyfraction.append(RecEnergyHist.GetFunction("gaus").GetParameter(1)/energies[counter])
-		#resolutionscin.append(ScinEnergyHist.GetFunction("gaus").GetParameter(2)/ScinEnergyHist.GetFunction("gaus").GetParameter(1))
-		#resolutioncher.append(CherEnergyHist.GetFunction("gaus").GetParameter(2)/CherEnergyHist.GetFunction("gaus").GetParameter(1))
+		resolution.append(RecEnergyHist.GetFunction("gaus").GetParameter(2)/e_cont)
+		energyfractionscin.append(ScinEnergyHist.GetMean()/e_cont)
+		energyfractioncher.append(CherEnergyHist.GetMean()/e_cont)
+		energyfraction.append(RecEnergyHist.GetFunction("gaus").GetParameter(1)/e_cont)
+		resolutionscin.append(ScinEnergyHist.GetRMS()/e_cont)
+		resolutioncher.append(CherEnergyHist.GetRMS()/e_cont)
 
 	LinearityGraph = TGraph(len(energies), energies, energyfraction)
 	LinearityGraph.SetName("LinearityGraph")
@@ -150,34 +159,27 @@ def recenergy(name):
 	LinearityGraphScin.SetName("LinearityGraphScin")
 	LinearityGraphScin.Write()
 
-	#ResolutionGraphScin = TGraph(len(energies), scin_sqrtenergies, resolutionscin)
+	ResolutionGraphScin = TGraph(len(energies), energies, resolutionscin)
 	func = TF1("func", "[0]/(x**0.5)+[1]", 10., 150.)
-	#ResolutionGraphCher = TGraph(len(energies), cher_sqrtenergies, resolutioncher)
+	ResolutionGraphCher = TGraph(len(energies), energies, resolutioncher)
 	#ResolutionGraphScin.Fit("func", "R")
 	#ResolutionGraphCher.Fit("func", "R")
-	#ResolutionGraphScin.SetName("ResolutionGraphScin")
-	#ResolutionGraphScin.Write()
-	#ResolutionGraphCher.SetName("ResolutionGraphCher")
-	#ResolutionGraphCher.Write()
+	ResolutionGraphScin.SetName("ResolutionGraphScin")
+	ResolutionGraphScin.Write()
+	ResolutionGraphCher.SetName("ResolutionGraphCher")
+	ResolutionGraphCher.Write()
 	ResolutionGraph = TGraph(len(energies), energies, resolution)
 	ResolutionGraph.Fit("func", "R")
 	ResolutionGraph.SetName("ResolutionGraph")
 	ResolutionGraph.Write()
-	'''
-	rd52copper = array('d', [0.04478505426185217, 0.027392527130926082, 0.02420093893609386, 0.02229837387624884, 0.020999999999999998])
-
-	rd52graph = TGraph(len(energies), sqrtenergies, rd52copper)
-	rd52graph.SetName("rd52resolution")
-	rd52graph.Write()
-
-
-	EMResolutions = TMultiGraph()
-	EMResolutions.Add(ResolutionGraphScin)
-	EMResolutions.Add(ResolutionGraphCher)
-	EMResolutions.Add(ResolutionGraph)
-	EMResolutions.Add(rd52graph)
-	EMResolutions.SetName("EMResolutions")
-	EMResolutions.Write()
+	
+	
+	Resolutions = TMultiGraph()
+	Resolutions.Add(ResolutionGraphScin)
+	Resolutions.Add(ResolutionGraphCher)
+	Resolutions.Add(ResolutionGraph)
+	Resolutions.SetName("EMResolutions")
+	Resolutions.Write()
 
 	Linearities = TMultiGraph()
 	Linearities.Add(LinearityGraph)
@@ -185,7 +187,12 @@ def recenergy(name):
 	Linearities.Add(LinearityGraphCher)
 	Linearities.SetName("Linearities")
 	Linearities.Write()
-	'''
-names = ["FTFPBERT"]#, "FTFPBERT", "QGSPBERT", "QBBC"]
+	
+#names = ["FTFPBERT"]#, "FTFPBERT", "QGSPBERT", "QBBC"]
+#names = ["FTFPBERTTRV", "QGSPBERT", "QBBC"]
+name = raw_input("physics list: ")
+names = []
+names.append(name)
+
 for name in names:
 	recenergy(name)
