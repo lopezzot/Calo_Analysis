@@ -30,9 +30,9 @@ def energylinearity():
 	resolutionscin = array('d')
 	resolutioncher = array('d')
 	resolution = array('d')
-
-	inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
-	inputfiles = ["/home/software/Calo/results/newresults/barrel1/Barrel_"+str(i)+".root" for i in range(1,76)]
+	towers = array('d')
+	##inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
+	inputfiles = ["/home/software/Calo/results/newresults/barrel2/Barrel_"+str(i)+".root" for i in range(1,6)]
 	#inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	#inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	
@@ -49,7 +49,7 @@ def energylinearity():
 
 		energy = 40.0
 		sqrtenergy = 1/(40.0**0.5)
-		towers = array('d', range(1,76))
+		towers.append(counter+1.)
 	
 		#loop over events
 		for Event in range(int(tree.GetEntries())):	
@@ -84,15 +84,18 @@ def energylinearity():
 			ScinEnergyHist.Fill(energyscin)
 			CherEnergyHist.Fill(energycher)
 
-			sigmascin = 0.15*(energyscin**0.5)+0.012*energyscin
-			sigmacher = 0.18*(energycher**0.5)+0.0045*energycher
+			#sigmascin = 0.15*(energyscin**0.5)+0.012*energyscin #old value
+			#sigmacher = 0.18*(energycher**0.5)+0.0045*energycher #old value
+			sigmascin = 0.177*(energyscin**0.5)+0.006*energyscin
+			sigmacher = 0.194*(energycher**0.5)+0.001*energycher
+			
 			RecEnergyHist.Fill((energyscin/(sigmascin**2)+energycher/(sigmacher**2))/(1/sigmascin**2+1/sigmacher**2))
 
 			#RecEnergyHist.Fill((energyscin+energycher)/2)
 
 			Energytot += (sum(VectorL)+sum(VectorR))/1000
 
-		Energytot = Energytot/3000	
+		Energytot = Energytot/int(tree.GetEntries())
 		print Energytot, ScinEnergyHist.GetMean(), CherEnergyHist.GetMean()
 		displayfile.cd()
 		gStyle.SetOptStat(111)
