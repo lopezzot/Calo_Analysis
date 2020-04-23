@@ -6,13 +6,13 @@ from array import array
 import os
 import newmap
 import numpy as np
-import calibration
-#import calibration2 as calibration
+#import calibration
+import calibration2 as calibration
 
 def recenergy(name):
 	outputfile = "PionEnergyRes"+str(name)
 	displayfile = TFile(outputfile+".root","RECREATE")
-	
+	'''
 	if name == "FTFPBERT":
 		chi = 0.3
 	if name == "FTFPBERTTRV":
@@ -21,7 +21,7 @@ def recenergy(name):
 		chi = 0.3
 	if name == "QBBC":
 		chi = 0.3
-	
+	'''
 	MeanEnergyScin = array('d')
 	MeanEnergyCher = array('d')
 	Energy = array('d')
@@ -39,14 +39,16 @@ def recenergy(name):
 	scin_sqrtenergies = array('d')
 	cher_sqrtenergies = array('d')
 
-	t = [10,30,50,70,100,140,150]
-	t = [100]
+	t = [10,30,50,70,100,120,140,150]
+	#t = [100]
 	energies = array('d',t)
 	#inputfiles = ["/home/software/Calo/results/energycont_2p0m/Pion_"+str(i)+".root" for i in t]
 	#inputfiles = ["/home/software/Calo/results/pionenergyscan_QGSPBICHP/Pion_"+str(i)+".root" for i in t]
 	#inputfiles = ["/home/lorenzo/Desktop/Calo/newresults/FTFPBERTTRV/Pion_"+str(i)+"_FTFPBERTTRV_office.root" for i in t]
 	#inputfiles = ["/Users/lorenzo/Desktop/ToPC/newresults/"+str(name)+"/Pion_"+str(i)+".root" for i in t]
 	inputfiles = ["/home/lorenzo/Calo/results/Pion_25_3_2020/"+str(name)+""+"/Pion_"+str(i)+".root" for i in t]
+	#inputfiles = ["/home/lorenzo/Calo/results/Proton_25_3_2020/"+str(name)+""+"/Proton_"+str(i)+".root" for i in t]
+	#inputfiles = ["/home/lorenzo/Calo/results/Neutron_25_3_2020/"+str(name)+""+"/Neutron_"+str(i)+".root" for i in t]
 
 	for counter, inputfile in enumerate(inputfiles):
 		inputfile = TFile(inputfile)
@@ -60,7 +62,7 @@ def recenergy(name):
 		
 		#Signalscinhist = TH1F("scintot_", str(counter+1)+"_scin", 3000, 0., 30000)
 		EnergyHist = TH1F("Energy_"+str(t[counter]),str(t[counter])+"_Energy", 400, 0., 200.)
-		LeakageHist = TH1F("Leak_"+str(t[counter]),str(t[counter])+"_Leak", 200, 0., 100.)
+		LeakageHist = TH1F("Leak_"+str(t[counter]),str(t[counter])+"_Leak", 100, 0., 100.)
 		NeutrinoLeakageHist = TH1F("NeutrinoNeutrinoLeak_"+str(t[counter]),str(t[counter])+"_Leak", 200, 0., 100.)
 		TotalLeakageHist = TH1F("TotalLeak_"+str(t[counter]),str(t[counter])+"_Leak", 200, 0., 100.)
 		ChiHist = TH1F("Chi_"+str(t[counter]),str(t[counter])+"_Chi", 40, 0., 2.)
@@ -68,7 +70,7 @@ def recenergy(name):
 		EnergyContHist = TH1F("EnergyCont_"+str(t[counter]),str(t[counter])+"_EnergyCont", 400, 0., 200.)
 
 		#loop over events
-		for Event in range(50000):	
+		for Event in range(10000):	
 
 			tree.GetEntry(Event)	
 			if Event%1000==0:
@@ -100,8 +102,15 @@ def recenergy(name):
 			NeutrinoLeakageHist.Fill(NeutrinoLeak/1000.)
 			TotalLeakageHist.Fill(Leak/1000.+NeutrinoLeak/1000.)
 
+			if float(t[counter])<12.:
+				cutleak = 0.5
+			if float(t[counter])>12. and float(t[counter])<50.:
+				cutleak = 1.0
+			if float(t[counter])>50.:
+				cutleak = 3.0
 
-			if (Leak/1000.+NeutrinoLeak/1000.)<3.0:
+
+			if (Leak/1000.+NeutrinoLeak/1000.)<cutleak:
 				#apply calibrations
 				Calib_BarrelL_VectorSignals = calibration.calibscin(BarrelL_VectorSignals)
 				Calib_BarrelR_VectorSignals = calibration.calibscin(BarrelR_VectorSignals)
@@ -115,7 +124,7 @@ def recenergy(name):
 				ScinEnergyHist.Fill(energyscin)
 				CherEnergyHist.Fill(energycher)
 				scatterplot.Fill(energyscin, energycher)
-				chi = 0.29
+				chi = 0.43
 				newchi = (energyscin-e_c)/(energycher-e_c)
 				ChiHist.Fill(newchi)			
 				RecEnergyHist.Fill((energyscin - chi*energycher)/(1.- chi))	
@@ -173,7 +182,7 @@ def recenergy(name):
 	ResolutionGraph.SetName("ResolutionGraph")
 	ResolutionGraph.Write()
 	
-	
+	'''	
 	Resolutions = TMultiGraph()
 	Resolutions.Add(ResolutionGraphScin)
 	Resolutions.Add(ResolutionGraphCher)
@@ -187,7 +196,7 @@ def recenergy(name):
 	Linearities.Add(LinearityGraphCher)
 	Linearities.SetName("Linearities")
 	Linearities.Write()
-	
+	'''	
 #names = ["FTFPBERT"]#, "FTFPBERT", "QGSPBERT", "QBBC"]
 #names = ["FTFPBERTTRV", "QGSPBERT", "QBBC"]
 name = raw_input("physics list: ")
