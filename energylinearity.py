@@ -32,7 +32,7 @@ def energylinearity():
 	resolution = array('d')
 	towers = array('d')
 	##inputfiles = sorted(glob.glob(datapath+"*"), key=os.path.getmtime) #get files from tower 1 to 75 ordered by creation time
-	inputfiles = ["/home/software/Calo/results/newresults/barrel2/Barrel_"+str(i)+".root" for i in range(1,6)]
+	inputfiles = ["/home/software/Calo/results/newresults/barrel2/Barrel_"+str(i)+".root" for i in range(1,76)]
 	#inputfiles = ["/home/software/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	#inputfiles = ["/home/lorenzo/Desktop/Calo/results/NewTowerScan4/Barrel_"+str(i)+".root" for i in range(1,76)]
 	
@@ -42,9 +42,9 @@ def energylinearity():
 		tree = TTree()
 		inputfile.GetObject("B4", tree)	
 
-		ScinEnergyHist = TH1F("scinenergy_", str(counter+1)+"_scin", 200, 0., 200.)
-		CherEnergyHist = TH1F("cherenergy_", str(counter+1)+"_cher", 200, 0., 200.)	
-		RecEnergyHist = TH1F("RecEnergy_",str(counter+1)+"_Energy", 200, 0., 200.)
+		ScinEnergyHist = TH1F("scinenergy_", str(counter+1)+"_scin", 200, 0., 100.)
+		CherEnergyHist = TH1F("cherenergy_", str(counter+1)+"_cher", 200, 0., 100.)	
+		RecEnergyHist = TH1F("RecEnergy_",str(counter+1)+"_Energy", 200, 0., 100.)
 		Energytot = 0.0
 
 		energy = 40.0
