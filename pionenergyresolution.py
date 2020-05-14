@@ -9,8 +9,8 @@ import numpy as np
 #import calibration
 import calibration2 as calibration
 
-def recenergy(name):
-	outputfile = "PionEnergyRes"+str(name)
+def recenergy(name, chivalue):
+	outputfile = "PionEnergyRes_"+str(chivalue)+"_"+str(name)
 	displayfile = TFile(outputfile+".root","RECREATE")
 	'''
 	if name == "FTFPBERT":
@@ -31,6 +31,9 @@ def recenergy(name):
 	resolutionscin = array('d')
 	resolutioncher = array('d')
 	resolution = array('d')
+	chiarray = array('d')
+	chierrorarray = array('d')
+	zeros = array('d')
 
 	energies = array('d',[10,20,30,40,50,60,70,80,90,100,110,120,130,140,150])
 	energies = array('d', [10,20,40,60, 80,90, 100,130, 150])
@@ -40,13 +43,14 @@ def recenergy(name):
 	cher_sqrtenergies = array('d')
 
 	t = [10,30,50,70,100,120,140,150]
-	#t = [100]
+	t = [100]
 	energies = array('d',t)
 	#inputfiles = ["/home/software/Calo/results/energycont_2p0m/Pion_"+str(i)+".root" for i in t]
 	#inputfiles = ["/home/software/Calo/results/pionenergyscan_QGSPBICHP/Pion_"+str(i)+".root" for i in t]
 	#inputfiles = ["/home/lorenzo/Desktop/Calo/newresults/FTFPBERTTRV/Pion_"+str(i)+"_FTFPBERTTRV_office.root" for i in t]
 	#inputfiles = ["/Users/lorenzo/Desktop/ToPC/newresults/"+str(name)+"/Pion_"+str(i)+".root" for i in t]
 	inputfiles = ["/home/lorenzo/Calo/results/Pion_25_3_2020/"+str(name)+""+"/Pion_"+str(i)+".root" for i in t]
+	#inputfiles = ["/home/lorenzo/Calo/results/geant4.10.4.p01/Pion_30_4_2020/"+str(name)+""+"/Pion_"+str(i)+".root" for i in t]
 	#inputfiles = ["/home/lorenzo/Calo/results/Proton_25_3_2020/"+str(name)+""+"/Proton_"+str(i)+".root" for i in t]
 	#inputfiles = ["/home/lorenzo/Calo/results/Neutron_25_3_2020/"+str(name)+""+"/Neutron_"+str(i)+".root" for i in t]
 
@@ -65,12 +69,13 @@ def recenergy(name):
 		LeakageHist = TH1F("Leak_"+str(t[counter]),str(t[counter])+"_Leak", 100, 0., 100.)
 		NeutrinoLeakageHist = TH1F("NeutrinoNeutrinoLeak_"+str(t[counter]),str(t[counter])+"_Leak", 200, 0., 100.)
 		TotalLeakageHist = TH1F("TotalLeak_"+str(t[counter]),str(t[counter])+"_Leak", 200, 0., 100.)
-		ChiHist = TH1F("Chi_"+str(t[counter]),str(t[counter])+"_Chi", 40, 0., 2.)
+		ChiHist = TH1F("Chi_"+str(t[counter]),str(t[counter])+"_Chi", 200, 0., 2.)
 		scatterplot = TH2F("scatterplot_"+str(t[counter]), str(t[counter]), int(400), 0., 200., int(400), 0., 200.)
 		EnergyContHist = TH1F("EnergyCont_"+str(t[counter]),str(t[counter])+"_EnergyCont", 400, 0., 200.)
 
 		#loop over events
-		for Event in range(10000):	
+		entries = 50000
+		for Event in range(entries):	
 
 			tree.GetEntry(Event)	
 			if Event%1000==0:
@@ -109,7 +114,7 @@ def recenergy(name):
 			if float(t[counter])>50.:
 				cutleak = 3.0
 
-
+			
 			if (Leak/1000.+NeutrinoLeak/1000.)<cutleak:
 				#apply calibrations
 				Calib_BarrelL_VectorSignals = calibration.calibscin(BarrelL_VectorSignals)
@@ -124,7 +129,7 @@ def recenergy(name):
 				ScinEnergyHist.Fill(energyscin)
 				CherEnergyHist.Fill(energycher)
 				scatterplot.Fill(energyscin, energycher)
-				chi = 0.43
+				chi = chivalue
 				newchi = (energyscin-e_c)/(energycher-e_c)
 				ChiHist.Fill(newchi)			
 				RecEnergyHist.Fill((energyscin - chi*energycher)/(1.- chi))	
@@ -157,7 +162,13 @@ def recenergy(name):
 		energyfraction.append(RecEnergyHist.GetFunction("gaus").GetParameter(1)/e_cont)
 		resolutionscin.append(ScinEnergyHist.GetRMS()/e_cont)
 		resolutioncher.append(CherEnergyHist.GetRMS()/e_cont)
+		chiarray.append(ChiHist.GetBinCenter(ChiHist.GetMaximumBin()))
+		chierrorarray.append(ChiHist.GetRMS()/(entries**0.5))
+		zeros.append(0.0)
 
+	ChiGraph = TGraphErrors(len(energies), energies, chiarray, zeros, chierrorarray)
+	ChiGraph.SetName("Chi")
+	ChiGraph.Write()
 	LinearityGraph = TGraph(len(energies), energies, energyfraction)
 	LinearityGraph.SetName("LinearityGraph")
 	LinearityGraph.Write()
@@ -197,11 +208,30 @@ def recenergy(name):
 	Linearities.SetName("Linearities")
 	Linearities.Write()
 	'''	
+	return RecEnergyHist.GetFunction("gaus").GetParameter(2), RecEnergyHist.GetFunction("gaus").GetParameter(1)
 #names = ["FTFPBERT"]#, "FTFPBERT", "QGSPBERT", "QBBC"]
-#names = ["FTFPBERTTRV", "QGSPBERT", "QBBC"]
-name = raw_input("physics list: ")
-names = []
-names.append(name)
+names = ["FTFPBERTTRV","FTFPBERT", "QGSPBERT", "QBBC"]
+#name = raw_input("physics list: ")
+#names = []
+#names.append(name)
+#for name in names:
+#	recenergy(name, 0.41)
 
+#for results varying chi
 for name in names:
-	recenergy(name)
+	chis = [0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75]
+	sigmas = array('d')
+	energies = array('d')
+	for chi in chis:
+		sigma, energy = recenergy(name, chi)
+		sigmas.append(sigma)
+		energies.append(energy)
+	outfile = TFile("newout.root","RECREATE")
+	TGraph1 = TGraph(int(len(chis)), array('d',chis),sigmas)
+	TGraph1.SetName("sigmas")
+	TGraph1.SetTitle("sigmas")
+	TGraph1.Write()
+	TGraph2 = TGraph(int(len(chis)), array('d',chis),energies)
+	TGraph2.SetName("energies")
+	TGraph2.SetTitle("energies")
+	TGraph2.Write()
