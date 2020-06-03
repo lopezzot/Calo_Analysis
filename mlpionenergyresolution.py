@@ -10,33 +10,55 @@ import numpy as np
 #import calibration2 as calibration
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.keras.layers import Dense
 from matplotlib import pyplot as plt
+from kerastuner.tuners import RandomSearch
+import kerastuner
 
 def build_model():
 	model = keras.Sequential([
-		keras.layers.Dense(10, activation='relu', input_shape=((2,))),
-		keras.layers.Dense(10, activation='relu'),
-		keras.layers.Dense(10, activation='relu'),
-		keras.layers.Dense(10, activation='relu'),
+		keras.layers.Dense(8, activation='relu', input_shape=((2,))),
+		keras.layers.Dense(8, activation='relu'),
+		keras.layers.Dense(8, activation='relu'),
+		#keras.layers.Dense(10, activation='relu'),
 		keras.layers.Dense(1)
 		])
-	
+	'''
 	lr_schedule = keras.optimizers.schedules.InverseTimeDecay(
 		0.001,
 		decay_steps=78552*1000,
 		decay_rate=1,
 		staircase=False
 		)
+	'''
 	
 	#optimizer = keras.optimizers.RMSprop()
 	#optimizer2 = keras.optimizers.SGD()
-	model.compile(loss='mae', optimizer=keras.optimizers.Adam(),metrics=["mae","mse"])
+	model.compile(loss='mae', optimizer=keras.optimizers.Adam(learning_rate=0.0001),metrics=["mae","mse"])
 	return model
+'''
+#hypermodel
+def build_model_hp(hp):
+	model = keras.Sequential([
+		keras.layers.Dense(hp.Int('input_units_0',
+		min_value=2,
+		max_value=10,
+		step=2), activation='relu', input_shape=((2,))),
+		])
+	for i in range(hp.Int('n_layers', 1, 4)):  # adding variation of layers.
+		model.add(Dense(hp.Int('input_units_'+str(i), min_value=2, max_value=10, step=2), activation="relu"))
+	model.add(Dense(1))
+	hp_learning_rate = hp.Choice('learning_rate', values = [1e-2,1e-3,1e-4,1e-5])
+	#hp_optimizer = hp.Choice('optimizer', ["sgd", "adam", "RMSprop"])
+	model.compile(loss='mae', optimizer=keras.optimizers.Adam(learning_rate = hp_learning_rate), metrics=["mae","mse"])
+	return model
+#end hypermodel
+'''
 
 def recenergy(name):
 	outputfile = "MLPionEnergyRes"+str(name)
 	#displayfile = TFile(outputfile+".root","RECREATE")
-	
+	'''
 	MeanEnergyScin = array('d')
 	MeanEnergyCher = array('d')
 	Energy = array('d')
@@ -46,6 +68,7 @@ def recenergy(name):
 	resolutionscin = array('d')
 	resolutioncher = array('d')
 	resolution = array('d')
+	'''
 
 	trainvector = np.array([[0,0]])
 	labelvector = np.array([[0]])
@@ -194,8 +217,26 @@ def gettestdata(name, t1, maxs, maxc):
 	return testvector, testlabelvector
 
 def doml(nepochs,trainvector, labelvector, evalvector, evallabelvector):
+	'''
+	#for tuning
+	tuner = RandomSearch(build_model_hp,
+						 objective = 'mse', 
+						max_trials = 100,
+						executions_per_trial = 3,
+						directory = 'my_dir')
+	
+	tuner.search_space_summary()
+	tuner.search(trainvector, labelvector, verbose = 0, epochs = 20, validation_data = (evalvector, evallabelvector))
+	print len(trainvector), len(evalvector)
+	#best_hps = tuner.get_best_hyperparameters(num_trials = 1)[0]
+	#print best_hps
+	print(tuner.results_summary())
+	tuner.get_best_models()[0].save("hpmodel")
+	#end tuning
+	'''
 	model = build_model()
 	model.summary()
+	
 	history = model.fit(trainvector, labelvector, epochs = nepochs, validation_data = (evalvector,evallabelvector))
 	
 	history_dict = history.history
@@ -253,8 +294,10 @@ def mlpredict(model, i, testvector, testlabelvector):
 	hist.Write()
 	mean = hist.GetFunction("gaus").GetParameter(1)
 	sigma = hist.GetFunction("gaus").GetParameter(2)
+	sigmaerror = hist.GetFunction("gaus").GetParError(2)
+	number_entries = hist.GetEntries()
 		
-	return mean, sigma
+	return mean, sigma, number_entries, sigmaerror
 
 #names = ["FTFPBERT"]#, "FTFPBERT", "QGSPBERT", "QBBC"]
 #names = ["FTFPBERTTRV", "QGSPBERT", "QBBC"]
@@ -263,8 +306,9 @@ names = ["FTFPBERT"]
 
 for name in names:
 	trainvector, labelvector, evalvector, evallabelvector, maxs, maxc = recenergy(name)
-	model = doml(400,trainvector, labelvector, evalvector, evallabelvector)
-
+	#model = doml(400,trainvector, labelvector, evalvector, evallabelvector)
+	#model.save("saved_models/my_model")
+	model = tf.keras.models.load_model("model_5")
 	energy = [10,30,50,70,100,120,140,150]
 	sqrtenergies = array('d')
 	trueenergies = array('d')
@@ -273,23 +317,32 @@ for name in names:
 		trueenergies.append(e)
 
 	mean = array('d')
+	meanerror = array('d')
 	sigma_energy = array('d')
+	sigma_energy_error = array('d')
 	ratio = array('d')
-
+	ratioerror = array('d')
+	zeros = array('d')
+	
 	for e in energy:
 		testvector, testlabelvector = gettestdata(name, [str(e)], maxs, maxc)
-		m, s =	mlpredict(model, e, testvector, testlabelvector)
+		m, s, number_entries , sigma_error =	mlpredict(model, e, testvector, testlabelvector)
 		mean.append(m)
+		meanerror.append(3*s/(float(number_entries)**0.5))
 		sigma_energy.append(s/m)
+		zeros.append(0.0)
+		sigma_energy_e = ((s/(float(number_entries)**0.5))/m + sigma_error/s)*(s/m)
+		sigma_energy_error.append(sigma_energy_e)
 
 	for counter, e in enumerate(energy):
 		ratio.append(mean[counter]/float(e))
+		ratioerror.append(3*(s/(float(number_entries)**0.5)) / float(e))
 
-	resgraph = TGraph(len(sigma_energy), sqrtenergies, sigma_energy)
+	resgraph = TGraphErrors(len(sigma_energy), sqrtenergies, sigma_energy, zeros, sigma_energy_error)
 	resgraph.SetName("resgraph")
-	lingraph = TGraph(len(trueenergies), trueenergies, mean)
+	lingraph = TGraphErrors(len(trueenergies), trueenergies, mean, zeros, meanerror)
 	lingraph.SetName("lingraph")
-	ratiograph = TGraph(len(trueenergies), trueenergies, ratio)
+	ratiograph = TGraphErrors(len(trueenergies), trueenergies, ratio, zeros, ratioerror)
 	ratiograph.SetName("ratiograph")
 	displayfile = TFile("MLPionEnergyResFTFPBERT.root", "UPDATE")
 	displayfile.cd()
@@ -330,7 +383,14 @@ for name in names:
 	pad1.cd()
 	lingraph.Draw()
 	pad2.cd()
-	ratiograph.Draw()
+	ratiograph.Draw("AP")
+	ratioline = TF1("ratioline", str(np.mean(ratio)), 0., 160.)
+	ratioline.SetLineColor(1)
+	ratioline.SetLineWidth(1)
+	ratioline.SetLineStyle(9)
+	ratioline.Draw("same")
+	ratioline.Write()
 	c.Update()
 	#c.SaveAs("MLratio.pdf")
 	c.Write()
+	
