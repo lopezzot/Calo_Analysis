@@ -177,7 +177,7 @@ def recenergy():
 	ratioGraph.SetName("ratio")
 	ratioGraph.SetMinimum(0.976)
 	ratioGraph.SetMaximum(1.024)
-	ratioGraph.GetXaxis().SetLimits(0.0,155.0)
+	ratioGraph.GetXaxis().SetLimits(0.0,255.0)
 	ratioGraph.SetTitle("")
 	ratioGraph.GetXaxis().SetLabelSize(.105)
 	ratioGraph.GetYaxis().SetLabelSize(0.105)
@@ -189,8 +189,8 @@ def recenergy():
 	LinearityGraph.Write()
 	LinearityGraph.SetTitle("")
 	LinearityGraph.SetMinimum(0.0)
-	LinearityGraph.SetMaximum(155.0)
-	LinearityGraph.GetXaxis().SetLimits(0.0,155.0)
+	LinearityGraph.SetMaximum(255.0)
+	LinearityGraph.GetXaxis().SetLimits(0.0,255.0)
 	LinearityGraph.GetXaxis().SetLabelSize(0.)
 	LinearityGraph.GetXaxis().SetNdivisions(520)
 	LinearityGraph.GetYaxis().SetNdivisions(520)
@@ -265,12 +265,18 @@ def recenergy():
 	pad1.cd()
 	LinearityGraph.Draw()
 	pad2.cd()
-	ratioGraph.Draw()
+	ratioGraph.Draw("AP")
+	ratioline = TF1("ratioline",str(np.mean(ratio)),0.,255.)
+	ratioline.SetLineColor(1)
+	ratioline.SetLineStyle(9)
+	ratioline.SetLineWidth(1)
+	ratioline.Draw("same")
+	ratioline.Write()
 	c.Update()
-	c.SaveAs("test.pdf")
+	#c.SaveAs("test.pdf")
 	c.Write()
 
-
+	'''
 	ca = TCanvas("ca", "canvas1", 800, 800)
 	ca.cd()
 	gPad.DrawFrame(0,0,0.6,0.1)
@@ -278,6 +284,7 @@ def recenergy():
 	Axis=TGaxis(0,0.1,0.6,0.1,"fa",510,"-")
 	Axis.SetFunction("fa")
 	Axis.Draw()
+	'''
 	#ResolutionGraph = TGraphErrors(len(energies), sqrtenergies, resolution, zeros, resolutionerror)
 	#ResolutionGraph.Fit("func", "R")
 	#ResolutionGraph.SetName("ResolutionGraph")
@@ -286,7 +293,7 @@ def recenergy():
 	#ResolutionGraph.SetMaximum(0.1)
 
 	#ResolutionGraph.Draw()
-	ca.Write()
+	#ca.Write()
 	
 	
 
