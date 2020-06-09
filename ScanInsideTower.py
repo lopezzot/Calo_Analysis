@@ -175,8 +175,8 @@ def towercalibration():
 		ResponseMeanCher.append(ResponseCherHist.GetMean())
 		ResponseRMSScin.append(ResponseScinHist.GetRMS())
 		ResponseRMSCher.append(ResponseCherHist.GetRMS())
-		Responseerrorsscin.append(ResponseScinHist.GetRMS()/(3000**0.5))
-		Responseerrorscher.append(ResponseCherHist.GetRMS()/(3000**0.5))
+		Responseerrorsscin.append(3*ResponseScinHist.GetRMS()/(3000**0.5))
+		Responseerrorscher.append(3*ResponseCherHist.GetRMS()/(3000**0.5))
 
 	n = len(MeanCher)
 	ScinTotGraph = TGraph(n, thetas, ScinSignalTot)
