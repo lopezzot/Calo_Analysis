@@ -26,7 +26,7 @@ def cart2sph(x,y,z):
 particle = raw_input("particle: ")
 
 energies = [10,20,30,40,50,60,70,80,90,100,130,140,150]
-energies = [10]
+energies = [40]
 outputfile = TFile(particle+"Angle.root", "RECREATE")
 for e in energies:
 
@@ -35,7 +35,8 @@ for e in energies:
 	file = "/home/software/Calo/NewResults/AngleRes_"+particle+"/Energy_"+str(e)+"_ThetaPhi_1.0_1.0.txt"
 	#file = "/home/software/Calo/NewResults/AngleRes_"+particle+"_2/Energy_"+str(e)+".txt"
 	file = "/home/software/Calo/NewResults/AngleRes_images/Energy_40_"+str(particle)+"_ThetaPhi_1.0_180.0.txt"
-	file = "/home/software/Calo/NewResults/AngleRes_images/Energy_jet_90.txt"
+	#file = "/home/software/Calo/NewResults/AngleRes_images/Energy_jet_90.txt"
+	
 	if e == energies[0]:
 		energies = []
 		angrestheta = []
@@ -130,13 +131,13 @@ for e in energies:
 		array_phi_S = np.array(phi_S, 'd')
 		array_E_s = np.array(E_s, 'd')
 		array_E_s_ordered, array_theta_S_ordered, array_phi_S_ordered = zip(*sorted(zip(array_E_s, array_theta_S, array_phi_S)))
-		array_theta_S_ordered = [x*180./math.pi+90. for x in array_theta_S_ordered]
-		array_phi_S_ordered = [x*180./math.pi for x in array_phi_S_ordered]
-		array_theta_S_ordered = array_theta_S_ordered + [0.,0.,180.,180.]
-		array_phi_S_ordered = array_phi_S_ordered + [0.,360.,0.,360.]
-		array_E_s_ordered = [x for x in array_E_s_ordered] + [-100.,-100.,-100.,-100.]
-		ScinGraph = TGraph2D(n+4, np.array(array_theta_S_ordered), np.array(array_phi_S_ordered), np.array(array_E_s_ordered))
-		ScinGraph.SetMinimum(0.0)
+		array_theta_S_ordered = [x for x in array_theta_S_ordered]
+		array_phi_S_ordered = [x for x in array_phi_S_ordered]
+		array_theta_S_ordered = array_theta_S_ordered
+		array_phi_S_ordered = array_phi_S_ordered
+		array_E_s_ordered = [x for x in array_E_s_ordered]
+		ScinGraph = TGraph2D(n, np.array(array_theta_S_ordered), np.array(array_phi_S_ordered), np.array(array_E_s_ordered))
+		#ScinGraph.SetMinimum(0.0)
 		ScinGraph.SetName("ScinGraph_"+str(e)+"_"+str(i))
 
 		n = len(theta_C)
@@ -144,13 +145,13 @@ for e in energies:
 		array_phi_C = np.array(phi_C, 'd')
 		array_E_c = np.array(E_c, 'd')
 		array_E_c_ordered, array_theta_C_ordered, array_phi_C_ordered = zip(*sorted(zip(array_E_c, array_theta_C, array_phi_C)))
-		array_theta_C_ordered = [x*180./math.pi+90. for x in array_theta_C_ordered]
-		array_phi_C_ordered = [x*180./math.pi for x in array_phi_C_ordered]
-		array_theta_C_ordered = array_theta_C_ordered + [0.,0.,180.,180.]
-		array_phi_C_ordered = array_phi_C_ordered + [0.,360.,0.,360.]
-		array_E_c_ordered = [x for x in array_E_c_ordered] + [-100.,-100.,-100.,-100.]
-		CherGraph = TGraph2D(n+4, np.array(array_theta_C_ordered), np.array(array_phi_C_ordered), np.array(array_E_c_ordered))
-		CherGraph.SetMinimum(0.0)
+		array_theta_C_ordered = [x for x in array_theta_C_ordered]
+		array_phi_C_ordered = [x for x in array_phi_C_ordered]
+		array_theta_C_ordered = array_theta_C_ordered
+		array_phi_C_ordered = array_phi_C_ordered 
+		array_E_c_ordered = [x for x in array_E_c_ordered]
+		CherGraph = TGraph2D(n, np.array(array_theta_C_ordered), np.array(array_phi_C_ordered), np.array(array_E_c_ordered))
+		#CherGraph.SetMinimum(0.0)
 		CherGraph.SetName("CherGraph_"+str(e)+"_"+str(i))
 
 		MeanTheta = 0.
@@ -202,10 +203,10 @@ for e in energies:
 		MeanTheta = MeanTheta/sumtheta
 		MeanPhi = MeanPhi/sumphi
 
-		ScinPlot.GetXaxis().SetRangeUser(-0.04,0.08)
-		ScinPlot.GetYaxis().SetRangeUser(-0.04,0.08)
-		CherPlot.GetXaxis().SetRangeUser(-0.04,0.08)
-		CherPlot.GetYaxis().SetRangeUser(-0.04,0.08)		
+		#ScinPlot.GetXaxis().SetRangeUser(-0.04,0.08)
+		#ScinPlot.GetYaxis().SetRangeUser(-0.04,0.08)
+		#CherPlot.GetXaxis().SetRangeUser(-0.04,0.08)
+		#CherPlot.GetYaxis().SetRangeUser(-0.04,0.08)		
 		MeanTheta2 = ScinPlot.GetMean(1)
 		#print MeanTheta, MeanTheta2, MeanTheta-MeanTheta2
 		ThetaHist.Fill(MeanTheta)
