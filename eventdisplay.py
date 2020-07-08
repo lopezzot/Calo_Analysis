@@ -38,14 +38,15 @@ def create_eventdisplay_scin(PrimaryParticleName, VectorSignalsR, VectorSignalsL
 	TH2Signals.SetLineColor(2)
 	#TH2Signals.SetFillColorAlpha(2, 0.)
 	XAxis = TH2Signals.GetXaxis()
-	XAxis.SetTitle("Theta (deg)")
+	XAxis.SetTitle("#theta (deg)")
 	XAxis.CenterTitle()
-	XAxis.SetTitleOffset(1.0)
+	XAxis.SetTitleOffset(2.0)
 	#XAxis.SetTitleOffset(1.8)
 	YAxis = TH2Signals.GetYaxis()
-	YAxis.SetTitle("Phi (deg)")
+	YAxis.SetTitle("#phi (deg)")
 	YAxis.CenterTitle()
-	YAxis.SetTitleOffset(1.0)
+	YAxis.SetTitleOffset(2.0)
+	gStyle.SetPalette(1)
 	#YAxis.SetTitleOffset(1.8)
 	ZAxis = TH2Signals.GetZaxis()
 	#ZAxis.SetTitle("Energy (MeV)")
@@ -83,14 +84,15 @@ def create_eventdisplay_cher(PrimaryParticleName, VectorSignalsR, VectorSignalsL
 	TH2Signals.SetLineColor(2)
 	#TH2Signals.SetFillColorAlpha(2, 0.)
 	XAxis = TH2Signals.GetXaxis()
-	XAxis.SetTitle("Theta (deg)")
+	XAxis.SetTitle("#theta (deg)")
 	XAxis.CenterTitle()
-	XAxis.SetTitleOffset(1.0)
+	XAxis.SetTitleOffset(2.0)
 	#XAxis.SetTitleOffset(1.8)
 	YAxis = TH2Signals.GetYaxis()
-	YAxis.SetTitle("Phi (deg)")
+	YAxis.SetTitle("#phi (deg)")
 	YAxis.CenterTitle()
-	YAxis.SetTitleOffset(1.0)
+	YAxis.SetTitleOffset(2.0)
+	gStyle.SetPalette(1)
 	#YAxis.SetTitleOffset(1.8)
 	ZAxis = TH2Signals.GetZaxis()
 	#ZAxis.SetTitle("Energy (MeV)")
@@ -263,16 +265,25 @@ def jetdisplay():
 		BarrelL_VectorSignalsCher = tree.VectorSignalsCherL 	
 		VectorR = tree.VectorR
 		VectorL = tree.VectorL
+		VectorR_looper = tree.VectorR_loop
+		VectorL_looper = tree.VectorL_loop
 		
 		Calib_BarrelL_VectorSignals = calibscin(BarrelL_VectorSignals)
 		Calib_BarrelR_VectorSignals = calibscin(BarrelR_VectorSignals)
 		Calib_BarrelL_VectorSignalsCher = calibcher(BarrelL_VectorSignalsCher)
 		Calib_BarrelR_VectorSignalsCher = calibcher(BarrelR_VectorSignalsCher)
 
+		Calib_BarrelL_VectorSignals = BarrelL_VectorSignals
+		Calib_BarrelR_VectorSignals = BarrelR_VectorSignals
+		Calib_BarrelL_VectorSignalsCher = BarrelL_VectorSignalsCher
+		Calib_BarrelR_VectorSignalsCher = BarrelR_VectorSignalsCher
+
+
 		displayfile.cd()
 		create_eventdisplay_scin("Jet_energy", Calib_BarrelR_VectorSignals, Calib_BarrelL_VectorSignals, "energy"+str(Event), 0.) 
 		create_eventdisplay_cher("Jet_energy", Calib_BarrelR_VectorSignalsCher, Calib_BarrelL_VectorSignalsCher, "energy"+str(Event), 0.)	
-			
+		create_eventdisplay_scin("Loopers", VectorR_looper, VectorL_looper, "loop"+str(Event), 0.)
+		
 	displayfile.Close()
 
 jetdisplay()
