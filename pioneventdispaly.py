@@ -26,7 +26,7 @@ def cart2sph(x,y,z):
 particle = raw_input("particle: ")
 
 energies = [10,20,30,40,50,60,70,80,90,100,130,140,150]
-energies = [40]
+#energies = [10,20]
 outputfile = TFile(particle+"Angle.root", "RECREATE")
 for e in energies:
 
@@ -34,9 +34,9 @@ for e in energies:
 	file = "/home/software/Calo/results/Electron_ang_res_1_1/Electron_"+str(e)+".txt"
 	file = "/home/software/Calo/NewResults/AngleRes_"+particle+"/Energy_"+str(e)+"_ThetaPhi_1.0_1.0.txt"
 	#file = "/home/software/Calo/NewResults/AngleRes_"+particle+"_2/Energy_"+str(e)+".txt"
-	file = "/home/software/Calo/NewResults/AngleRes_images/Energy_40_"+str(particle)+"_ThetaPhi_1.0_180.0.txt"
+	#file = "/home/software/Calo/NewResults/AngleRes_images/Energy_40_"+str(particle)+"_ThetaPhi_1.0_180.0.txt"
 	#file = "/home/software/Calo/NewResults/AngleRes_images/Energy_jet_90.txt"
-	
+	print file
 	if e == energies[0]:
 		energies = []
 		angrestheta = []
@@ -82,9 +82,12 @@ for e in energies:
 	percentages_array_s = np.array([0.0,0.0,0.0,0.0,0.0,0.0,0.0])
 	percentages_array_c = np.array([0.0,0.0,0.0,0.0,0.0,0.0,0.0])
 
-
 	FiberSHist = TH1F("FiberSHist_"+str(e), "FiberS_"+str(e),10000,0.,10000.)
+	FiberSHist_2 = TH1F("FiberSHist_2_"+str(e), "FiberS_2_"+str(e),5000,0.,5000.)
+	FiberSHist_max = TH1F("FiberSHist_max_"+str(e),"FiberSHist_mac_"+str(e),5000,0.,5000)
 	FiberCHist = TH1F("FiberCHist_"+str(e), "FiberC_"+str(e),10000,0.,10000.)
+	FiberCHist_2 = TH1F("FiberCHist_2_"+str(e), "FiberC_2_"+str(e),5000,0.,5000.)
+	FiberCHist_max = TH1F("FiberCHist_max_"+str(e), "FiberCHist_max_"+str(e),5000,0.,5000)
 	FiberSHist_1suppression = TH1F("FiberSHist_"+str(e)+"_1sup", "FiberS_"+str(e),10000,0.,10000.)
 	FiberCHist_1suppression = TH1F("FiberCHist_"+str(e)+"_1sup", "FiberC_"+str(e),10000,0.,10000.)
 	FiberSHist_2suppression = TH1F("FiberSHist_"+str(e)+"_2sup", "FiberS_"+str(e),10000,0.,10000.)
@@ -99,6 +102,9 @@ for e in energies:
 		phi_S=[]
 		E_s = Edep[S]
 		FiberSHist.Fill(len(X_S))
+		for x in E_s:
+			FiberSHist_2.Fill(x)
+		FiberSHist_max.Fill(max(E_s))
 		FiberSHist_1suppression.Fill(len([x for x in E_s if x>1.0]))
 		FiberSHist_2suppression.Fill(len([x for x in E_s if x>2.0]))
 		C = np.where((Flag==0.) & (EvtID==i))
@@ -109,6 +115,9 @@ for e in energies:
 		phi_C=[]
 		E_c=Edep[C]	
 		FiberCHist.Fill(len(X_C))
+		for x in E_c:
+			FiberCHist_2.Fill(x)
+		FiberCHist_max.Fill(max(E_c))
 		FiberCHist_1suppression.Fill(len([x for x in E_c if x>1.0]))
 		FiberCHist_2suppression.Fill(len([x for x in E_c if x>2.0]))
 
@@ -168,37 +177,37 @@ for e in energies:
 		sumphiCS = 0.
 
 		for counter, entry in enumerate(E_s):
-			#if -0.04<theta_S[counter]<0.08:
-			MeanTheta += entry*theta_S[counter]
-			sumtheta += entry
-			#if -0.04<phi_S[counter]<0.08:
-			MeanPhi += entry*phi_S[counter]
-			sumphi += entry
+			if -0.04<theta_S[counter]<0.08:
+				MeanTheta += entry*theta_S[counter]
+				sumtheta += entry
+			if -0.04<phi_S[counter]<0.08:
+				MeanPhi += entry*phi_S[counter]
+				sumphi += entry
 			ScinPlot.Fill(theta_S[counter], phi_S[counter], entry)	
 
 		for counter, entry in enumerate(E_c):
-			#if -0.04<theta_C[counter]<0.08:
-			MeanThetaC += entry*theta_C[counter]
-			sumthetaC += entry
-			#if -0.04<phi_C[counter]<0.08:
-			MeanPhiC += entry*phi_C[counter]
-			sumphiC += entry
+			if -0.04<theta_C[counter]<0.08:
+				MeanThetaC += entry*theta_C[counter]
+				sumthetaC += entry
+			if -0.04<phi_C[counter]<0.08:
+				MeanPhiC += entry*phi_C[counter]
+				sumphiC += entry
 			CherPlot.Fill(theta_C[counter], phi_C[counter], entry)	
 
 		for counter, entry in enumerate(E_s):
-			#if -0.04<theta_S[counter]<0.08:
-			MeanThetaCS += entry*theta_S[counter]
-			sumthetaCS += entry
-			#if -0.04<phi_S[counter]<0.08:
-			MeanPhiCS += entry*phi_S[counter]
-			sumphiCS += entry
+			if -0.04<theta_S[counter]<0.08:
+				MeanThetaCS += entry*theta_S[counter]
+				sumthetaCS += entry
+			if -0.04<phi_S[counter]<0.08:
+				MeanPhiCS += entry*phi_S[counter]
+				sumphiCS += entry
 		for counter, entry in enumerate(E_c):
-			#if -0.04<theta_C[counter]<0.08:
-			MeanThetaCS += entry*theta_C[counter]
-			sumthetaCS += entry
-			#if -0.04<phi_C[counter]<0.08:
-			MeanPhiCS += entry*phi_C[counter]
-			sumphiCS += entry
+			if -0.04<theta_C[counter]<0.08:
+				MeanThetaCS += entry*theta_C[counter]
+				sumthetaCS += entry
+			if -0.04<phi_C[counter]<0.08:
+				MeanPhiCS += entry*phi_C[counter]
+				sumphiCS += entry
 			
 		MeanTheta = MeanTheta/sumtheta
 		MeanPhi = MeanPhi/sumphi
@@ -226,7 +235,7 @@ for e in energies:
 
 		percentages_array_s = percentages_array_s + np.array(percentages_s)
 		percentages_array_c = percentages_array_c + np.array(percentages_c) 
-		if i<100:
+		if i<1:
 			gStyle.SetPalette(1)
 			ScinPlot.Write()
 			CherPlot.Write()
@@ -250,7 +259,11 @@ for e in energies:
 		#plt.show()	
 
 	FiberSHist.Write()
+	FiberSHist_2.Write()
+	FiberSHist_max.Write()
 	FiberCHist.Write()
+	FiberCHist_2.Write()
+	FiberCHist_max.Write()
 	fiber_s.append(FiberSHist.GetMean())
 	fiber_s_error.append(FiberSHist.GetRMS()/(3000**0.5))
 	fiber_c.append(FiberCHist.GetMean())
