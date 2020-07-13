@@ -6,7 +6,7 @@ from ROOT import TH2F, TFile, TH1F, TGraph2D, TLine, gStyle, TGraph, TVector3
 import circle
 import createangularesolutionplot
 import math
-'''
+
 def cart2sph(x,y,z):
 	phi = np.arctan2(y,x)
 	theta = np.arctan2(z,np.sqrt(x**2 + y**2))
@@ -22,7 +22,7 @@ def cart2sph(x,y,z):
 	theta = np.arctan2(z,np.sqrt(x**2 + y**2))
 	r = np.sqrt(x**2 + y**2 + z**2)
 	return theta, phi, r
-'''
+
 def cart2sph(x,y,z):
 	a = TVector3()
 	a.SetXYZ(x,y,z)
