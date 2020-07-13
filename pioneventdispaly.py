@@ -22,10 +22,15 @@ def cart2sph(x,y,z):
 	theta = np.arctan2(z,np.sqrt(x**2 + y**2))
 	r = np.sqrt(x**2 + y**2 + z**2)
 	return theta, phi, r
-
+'''
+def cart2sph(x,y,z):
+	a = TVector3()
+	a.SetXYZ(x,y,z)
+	return a.Theta(), a.Phi(), a.Mag()
+'''
 particle = raw_input("particle: ")
 
-energies = [10,20,30,40,50,60,70,80,90,100,130,140,150]
+energies = [10,20,30,40,50,60,70,80,90,100,110,120,130,140,150]
 #energies = [10,20]
 outputfile = TFile(particle+"Angle.root", "RECREATE")
 for e in energies:
