@@ -2,7 +2,7 @@ import os
 import numpy as np
 #import matplotlib.pyplot as plt
 import time
-from ROOT import TH2F, TFile, TH1F, TGraph2D, TLine, gStyle, TGraph
+from ROOT import TH2F, TFile, TH1F, TGraph2D, TLine, gStyle, TGraph, TGraphErrors
 import circle
 import createangularesolutionplot
 from array import array
@@ -98,11 +98,13 @@ for theta in thetas:
 
 	file = "/home/software/Calo/results/Thetauniformity/Theta_"+str(theta)+".txt"	
 	#file = "/home/lorenzo/Desktop/Calo/results/thetalinearity/Theta_"+str(theta)+".txt"	
-
+	print file
 	if theta == thetas[0]:
 		truetheta = array('d')
 		angrestheta = array('d')
+		angresthetaerror = array('d')
 		thetas = array('d')
+		truethetaerror = array('d')
 
 	EvtID = np.array([line.split('\t')[0] for line in open(file,"r").readlines()][1:],'i')
 	NumFiber = np.array([x.split('\t')[1] for x in open(file,"r").readlines()][1:],'d')
@@ -205,16 +207,22 @@ for theta in thetas:
 	ThetaHistCS.Write()
 	PhiHistCS.Write()
 
-	truetheta.append(theta)
+	truetheta.append(90.+theta)
+	truethetaerror.append(0.)
 	angrestheta.append(ThetaHistCS.GetFunction("gaus").GetParameter(2)*1000)
-	thetas.append(ThetaHistCS.GetFunction("gaus").GetParameter(1)*180./math.pi)
+	angresthetaerror.append(ThetaHistCS.GetFunction("gaus").GetParError(2)*1000)
+	thetas.append(90.+ThetaHistCS.GetFunction("gaus").GetParameter(1)*180./math.pi-(90.+theta))
 
 	print "true theta "+str(theta)+" measured theta "+str(ThetaHistCS.GetFunction("gaus").GetParameter(1)*180./math.pi)+" sigma theta "+str(ThetaHistCS.GetFunction("gaus").GetParameter(2)*1000)
 
 gStyle.SetOptStat(111)
 phi_linearity = TGraph(len(truetheta), truetheta, thetas)
-phi_linearity.SetName("phis_linearity")
+phi_linearity.SetName("thetas_linearity")
+phi_linearity.GetXaxis().SetTitle("#theta (deg)")
+phi_linearity.GetYaxis().SetTitle("#theta measured - theta true (deg)")
 phi_linearity.Write()
-sigma_linearity = TGraph(len(truetheta), truetheta, angrestheta)
+sigma_linearity = TGraphErrors(len(truetheta), truetheta, angrestheta, truethetaerror, angresthetaerror)
+sigma_linearity.GetXaxis().SetTitle("#theta (deg)")
+sigma_linearity.GetYaxis().SetTitle("#sigma (mrad)")
 sigma_linearity.SetName("sigma_linearity")
 sigma_linearity.Write()

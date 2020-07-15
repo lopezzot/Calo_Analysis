@@ -2,7 +2,7 @@ import os
 import numpy as np
 #import matplotlib.pyplot as plt
 import time
-from ROOT import TH2F, TFile, TH1F, TGraph2D, TLine, gStyle, TGraph, TVector3
+from ROOT import TH2F, TFile, TH1F, TGraph2D, TLine, gStyle, TGraph, TVector3, TGraphErrors
 import circle
 import createangularesolutionplot
 from array import array
@@ -60,11 +60,13 @@ for phi in phis:
 
 	file = "/home/software/Calo/results/Phiuniformity/Phi_"+str(phi)+".txt"	
 	#file = "/home/lorenzo/Desktop/Calo/results/philinearity/Phi_"+str(phi)+".txt"	
-	file = "/home/software/Calo/NewResults/PhiUniformity/Phi_"+str(phi)+".txt"
+	#file = "/home/software/Calo/NewResults/PhiUniformity/Phi_"+str(phi)+".txt"
 	print file
 	if phi == phis[0]:
 		truephis = array('d')
+		truephiserror = array('d')
 		angresphi = array('d')
+		angresphierror = array('d')
 		phis = array('d')
 
 	EvtID = np.array([line.split('\t')[0] for line in open(file,"r").readlines()][1:],'i')
@@ -169,15 +171,21 @@ for phi in phis:
 	PhiHistCS.Write()
 
 	truephis.append(phi)
+	truephiserror.append(0.)
 	angresphi.append(PhiHistCS.GetFunction("gaus").GetParameter(2)*1000)
+	angresphierror.append(PhiHistCS.GetFunction("gaus").GetParError(2)*1000)
 	phis.append(PhiHistCS.GetFunction("gaus").GetParameter(1)*180./math.pi-phi)
 
 	print "true phi "+str(phi)+" measured phi "+str(PhiHistCS.GetFunction("gaus").GetParameter(1)*180./math.pi)+" sigma phi "+str(PhiHistCS.GetFunction("gaus").GetParameter(2)*1000)
 
 gStyle.SetOptStat(111)
 phi_linearity = TGraph(len(truephis), truephis, phis)
+phi_linearity.GetXaxis().SetTitle("#phi (deg)")
+phi_linearity.GetYaxis().SetTitle("#phi measured - #phi true (deg)")
 phi_linearity.SetName("phis_linearity")
 phi_linearity.Write()
-sigma_linearity = TGraph(len(truephis), truephis, angresphi)
+sigma_linearity = TGraphErrors(len(truephis), truephis, angresphi, truephiserror, angresphierror)
+sigma_linearity.GetYaxis().SetTitle("#sigma (mrad)")
+sigma_linearity.GetXaxis().SetTitle("#phi (deg)")
 sigma_linearity.SetName("sigma_linearity")
 sigma_linearity.Write()
