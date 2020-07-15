@@ -60,7 +60,7 @@ for phi in phis:
 
 	file = "/home/software/Calo/results/Phiuniformity/Phi_"+str(phi)+".txt"	
 	#file = "/home/lorenzo/Desktop/Calo/results/philinearity/Phi_"+str(phi)+".txt"	
-	#file = "/home/software/Calo/NewResults/PhiUniformity/Phi_"+str(phi)+".txt"
+	file = "/home/software/Calo/NewResults/PhiUniformity/Phi_"+str(phi)+".txt"
 	print file
 	if phi == phis[0]:
 		truephis = array('d')
