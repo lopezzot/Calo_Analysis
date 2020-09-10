@@ -6,7 +6,7 @@ from ROOT import TH2F, TFile, TH1F, TGraph2D, TLine, gStyle, TGraph, TVector3
 import circle
 import createangularesolutionplot
 import math
-
+'''
 def cart2sph(x,y,z):
 	phi = np.arctan2(y,x)
 	theta = np.arctan2(z,np.sqrt(x**2 + y**2))
@@ -22,7 +22,7 @@ def cart2sph(x,y,z):
 	theta = np.arctan2(z,np.sqrt(x**2 + y**2))
 	r = np.sqrt(x**2 + y**2 + z**2)
 	return theta, phi, r
-
+'''
 def cart2sph(x,y,z):
 	a = TVector3()
 	a.SetXYZ(x,y,z)
@@ -31,13 +31,14 @@ def cart2sph(x,y,z):
 particle = raw_input("particle: ")
 
 energies = [10,20,30,40,50,60,70,80,90,100,110,120,130,140,150]
-#energies = [10,20]
+#energies = [10]
 outputfile = TFile(particle+"Angle.root", "RECREATE")
 for e in energies:
 
 	file = "/home/software/Calo/results/energy_angular_pion/Pion_"+str(e)+".txt"	
 	file = "/home/software/Calo/results/Electron_ang_res_1_1/Electron_"+str(e)+".txt"
 	file = "/home/software/Calo/NewResults/AngleRes_"+particle+"/Energy_"+str(e)+"_ThetaPhi_1.0_1.0.txt"
+	file = "/home/software/Calo/results/newresults/Anglesdata/Anglesresolution/AngleRes_"+particle+"/Energy_"+str(e)+"_ThetaPhi_1.0_1.0.txt"
 	#file = "/home/software/Calo/NewResults/AngleRes_"+particle+"_2/Energy_"+str(e)+".txt"
 	#file = "/home/software/Calo/NewResults/AngleRes_images/Energy_40_"+str(particle)+"_ThetaPhi_1.0_180.0.txt"
 	#file = "/home/software/Calo/NewResults/AngleRes_images/Energy_jet_90.txt"
@@ -97,6 +98,8 @@ for e in energies:
 	FiberCHist_1suppression = TH1F("FiberCHist_"+str(e)+"_1sup", "FiberC_"+str(e),10000,0.,10000.)
 	FiberSHist_2suppression = TH1F("FiberSHist_"+str(e)+"_2sup", "FiberS_"+str(e),10000,0.,10000.)
 	FiberCHist_2suppression = TH1F("FiberCHist_"+str(e)+"_2sup", "FiberC_"+str(e),10000,0.,10000.)
+	scatterplot_thetacs = TH2F("thetacs"+str(e), "thetacs", 500, 0., 0.03, 500, 0., 0.03)
+
 	for i in range (0,int(max(EvtID[1:]))+1):
 		# S have Flag == 1 C == 0
 		S = np.where((Flag==1.) & (EvtID==i))
@@ -233,8 +236,11 @@ for e in energies:
 		PhiHistC.Fill(MeanPhiC)	
 		percentages_c = circle.computerradi(E_c, theta_C, phi_C)
 
-		MeanThetaCS = MeanThetaCS/sumthetaCS
-		MeanPhiCS = MeanPhiCS/sumphiCS
+		#MeanThetaCS = MeanThetaCS/sumthetaCS
+		#MeanPhiCS = MeanPhiCS/sumphiCS
+		MeanThetaCS = 0.5*(MeanTheta+MeanThetaC)
+		MeanPhiCS = 0.5*(MeanPhi+MeanPhiC)
+		scatterplot_thetacs.Fill(MeanTheta, MeanThetaC)
 		ThetaHistCS.Fill(MeanThetaCS)
 		PhiHistCS.Fill(MeanPhiCS)	
 
@@ -305,6 +311,8 @@ for e in energies:
 	PhiHistC.Write()
 	ThetaHistCS.Write()
 	PhiHistCS.Write()
+
+	scatterplot_thetacs.Write()
 
 	energies.append(float(e))
 	angrestheta.append(ThetaHistCS.GetFunction("gaus").GetParameter(2)*1000)
